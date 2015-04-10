@@ -1,0 +1,17 @@
+{
+  "name": "appcache-fetcher",
+  "version": "0.0.1",
+  "description": "store an AppCache-enabled site on disk for local use",
+  "main": "index.js",
+  "scripts": {
+    "test": "eslint . && istanbul cover tests/"
+  },
+  "repository": "https://github.com/jokeyrhyme/appcache-fetcher.js",
+  "license": "BSD",
+  "devDependencies": {
+    "eslint": "^0.18.0",
+    "istanbul": "^0.3.13",
+    "tape": "^4.0.0",
+    "tape-chai": "^1.1.0"
+  }
+}
