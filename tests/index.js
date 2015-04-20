@@ -35,7 +35,7 @@ test("new Fetcher({ remoteUrl: 'http://everytimezone.com/' })", function (t) {
   t.test("constructor", function (tt) {
     tt.doesNotThrow(function () {
       fetcher = new Fetcher({
-        remoteUrl: "http://everytimezone.com",
+        remoteUrl: "http://everytimezone.com/",
         localPath: outputPath
       });
     });
@@ -55,6 +55,17 @@ test("new Fetcher({ remoteUrl: 'http://everytimezone.com/' })", function (t) {
 
   t.test("index.html", function (tt) {
     tt.ok(fs.existsSync(path.join(outputPath, "index.html")));
+    tt.end();
+  });
+
+  t.test("index.json", function (tt) {
+    var index;
+    tt.ok(fs.existsSync(path.join(outputPath, "index.json")));
+    tt.doesNotThrow(function () {
+      index = require(path.join(outputPath, "index.json"));
+    });
+    tt.isObject(index);
+    tt.equal(index["http://everytimezone.com/"], "index.html");
     tt.end();
   });
 

@@ -26,6 +26,7 @@ function Fetcher(opts) {
   this.remoteUrl = opts.remoteUrl;
   this.localPath = opts.localPath;
   this.tempPath = "";
+  this.files = {};
 }
 
 Fetcher.prototype = Object.create(EventEmitter.prototype);
@@ -60,12 +61,26 @@ Fetcher.prototype.afterLocalPath = function () {
   });
 };
 
+Fetcher.prototype.writeFile = function (filePath, contents) {
+  return new Promise(function (resolve, reject) {
+    fs.writeFile(filePath, contents, function (err) {
+      if (err) {
+        console.error(err);
+        reject(err);
+        return;
+      }
+      resolve();
+    });
+  });
+};
+
 Fetcher.prototype.download = function (remoteUrl, localPath) {
   var me = this;
 
   return new Promise(function (resolve, reject) {
     request({ url: remoteUrl }, function (reqErr, res, body) {
       var filePath;
+      var filename;
       if (reqErr) {
         console.error(reqErr);
         reject(reqErr);
@@ -76,15 +91,14 @@ Fetcher.prototype.download = function (remoteUrl, localPath) {
         reject(new Error("http statusCode: " + res.statusCode));
         return;
       }
-      filePath = path.join(localPath, me.generateLocalFilePath(remoteUrl));
-      fs.writeFile(filePath, body, function (fsErr) {
-        if (fsErr) {
-          console.error(fsErr);
-          reject(fsErr);
-          return;
-        }
-        resolve(body);
-      });
+      filename = me.generateLocalFilePath(remoteUrl);
+      filePath = path.join(localPath, filename);
+
+      me.writeFile(filePath, body)
+      .then(function () {
+        me.files[remoteUrl] = filename;
+        resolve();
+      }, reject);
     });
   });
 };
@@ -101,14 +115,25 @@ Fetcher.prototype.generateLocalFilePath = function (remoteUrl) {
   return hash.digest("hex") + "." + path.extname(parsed.pathname);
 };
 
+Fetcher.prototype.persistFilesIndex = function () {
+  var content = JSON.stringify(this.files, null, 2);
+  var filePath = path.join(this.localPath, "index.json");
+
+  return this.writeFile(filePath, content);
+};
+
 Fetcher.prototype.go = function () {
   var me = this;
 
   return Promise.all([
     this.afterTempPath(),
     this.afterLocalPath()
-  ]).then(function () {
+  ])
+  .then(function () {
     return me.download(me.remoteUrl, me.localPath);
+  })
+  .then(function () {
+    return me.persistFilesIndex();
   });
 };
 
