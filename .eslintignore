@@ -3,4 +3,5 @@ node_modules
 
 # output files
 coverage
+output
 tests/browser.bundle.js

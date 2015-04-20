@@ -11,7 +11,13 @@
   "devDependencies": {
     "eslint": "^0.18.0",
     "istanbul": "^0.3.13",
+    "rimraf": "^2.3.2",
     "tape": "^4.0.0",
     "tape-chai": "^1.1.0"
+  },
+  "dependencies": {
+    "mkdirp": "^0.5.0",
+    "request": "^2.55.0",
+    "temp": "^0.8.1"
   }
 }
