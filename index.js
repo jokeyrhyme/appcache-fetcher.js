@@ -93,7 +93,14 @@ Fetcher.prototype.writeFile = function (filePath, contents) {
 
 Fetcher.prototype.download = function (remoteUrl, localPath) {
   var me = this;
-  console.log("download: " + remoteUrl);
+
+  if (Array.isArray(remoteUrl)) {
+    return Promise.all(remoteUrl.map(function (r) {
+      return me.download(r, localPath);
+    }));
+  }
+
+  console.log("download:", remoteUrl);
 
   return new Promise(function (resolve, reject) {
     request({ url: remoteUrl }, function (reqErr, res, body) {
@@ -133,7 +140,7 @@ Fetcher.prototype.generateLocalFilePath = function (remoteUrl) {
   parsed = url.parse(remoteUrl, true, true);
   hash = crypto.createHash("sha1");
   hash.update(parsed.pathname + parsed.search);
-  return hash.digest("hex") + "." + path.extname(parsed.pathname);
+  return hash.digest("hex") + path.extname(parsed.pathname);
 };
 
 Fetcher.prototype.persistFilesIndex = function () {
@@ -156,6 +163,75 @@ Fetcher.prototype.getManifestURL = function () {
       manifestUrl = url.resolve(me.remoteUrl, manifestUrl);
     }
     return Promise.resolve(manifestUrl);
+  });
+};
+
+Fetcher.prototype.downloadAppCacheEntries = function () {
+  var me = this;
+  var appCache = require(path.join(me.localPath, "appcache.json"));
+  var remoteUrls;
+
+  remoteUrls = appCache.cache.map(function (entry) {
+    return url.resolve(me.remoteUrl, entry);
+  });
+
+  return this.download(remoteUrls, me.localPath);
+};
+
+Fetcher.EXTENSIONS_TO_PROCESS = [ ".css", ".html", ".js" ];
+
+Fetcher.prototype.postProcessCSS = function (filePath) {
+  console.log("postProcessCSS:");
+  return this.readFile(filePath);
+};
+
+Fetcher.prototype.postProcessHTML = function (filePath) {
+  var me = this;
+  console.log("postProcessHTML:");
+  return this.readFile(filePath)
+  .then(function (contents) {
+    var $ = cheerio.load(contents);
+    $("html").removeAttr("manifest"); // drop AppCache manifest attributes
+    return Promise.resolve($.html());
+  })
+  .then(function (contents) {
+    return me.writeFile(filePath, contents);
+  });
+};
+
+Fetcher.prototype.postProcessJS = function (filePath) {
+  console.log("postProcessJS:");
+  return this.readFile(filePath);
+};
+
+Fetcher.prototype.postProcessFile = function (filePath) {
+  var me = this;
+  var ext = path.extname(filePath);
+  if (Fetcher.EXTENSIONS_TO_PROCESS.indexOf(ext) === -1) {
+    console.log("postProcessFile: skipping", filePath.replace(process.cwd(), ""));
+    return Promise.resolve();
+  }
+  return new Promise(function (resolve, reject) {
+    console.log("postProcessFile:", filePath.replace(process.cwd(), ""));
+    ext = ext.toUpperCase().replace(".", "");
+    me["postProcess" + ext](filePath).then(resolve, reject);
+  });
+};
+
+Fetcher.prototype.postProcessDownloads = function () {
+  var me = this;
+
+  return new Promise(function (resolve, reject) {
+    fs.readdir(me.localPath, function (err, files) {
+      if (err) {
+        console.error(err);
+        reject(err);
+        return;
+      }
+      Promise.all(files.map(function (file) {
+        return me.postProcessFile(path.join(me.localPath, file));
+      })).then(resolve, reject);
+    });
   });
 };
 
@@ -187,7 +263,13 @@ Fetcher.prototype.go = function () {
     );
   })
   .then(function () {
+    return me.downloadAppCacheEntries();
+  })
+  .then(function () {
     return me.persistFilesIndex();
+  })
+  .then(function () {
+    return me.postProcessDownloads();
   });
 };
 

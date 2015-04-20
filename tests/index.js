@@ -9,6 +9,7 @@ var path = require("path");
 
 // 3rd-party modules
 
+var cheerio = require("cheerio");
 var rimraf = require("rimraf");
 var test = require("tape");
 
@@ -54,7 +55,12 @@ test("new Fetcher({ remoteUrl: 'http://everytimezone.com/' })", function (t) {
   });
 
   t.test("index.html", function (tt) {
+    var contents;
+    var $;
     tt.ok(fs.existsSync(path.join(outputPath, "index.html")));
+    contents = fs.readFileSync(path.join(outputPath, "index.html"), { encoding: "utf8" });
+    $ = cheerio.load(contents);
+    tt.notOk($("html").attr("manifest"), "no AppCache manifest attribute");
     tt.end();
   });
 
