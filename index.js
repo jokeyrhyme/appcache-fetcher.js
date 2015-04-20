@@ -11,6 +11,9 @@ var url = require("url");
 
 // 3rd-party modules
 
+var AppCache = require("appcache");
+
+var cheerio = require("cheerio");
 var mkdirp = require("mkdirp");
 var request = require("request");
 var temp = require("temp").track();
@@ -27,6 +30,7 @@ function Fetcher(opts) {
   this.localPath = opts.localPath;
   this.tempPath = "";
   this.files = {};
+  this.manifestUrl = "";
 }
 
 Fetcher.prototype = Object.create(EventEmitter.prototype);
@@ -61,6 +65,19 @@ Fetcher.prototype.afterLocalPath = function () {
   });
 };
 
+Fetcher.prototype.readFile = function (filePath) {
+  return new Promise(function (resolve, reject) {
+    fs.readFile(filePath, { encoding: "utf8" }, function (err, contents) {
+      if (err) {
+        console.error(err);
+        reject(err);
+        return;
+      }
+      resolve(contents);
+    });
+  });
+};
+
 Fetcher.prototype.writeFile = function (filePath, contents) {
   return new Promise(function (resolve, reject) {
     fs.writeFile(filePath, contents, function (err) {
@@ -76,6 +93,7 @@ Fetcher.prototype.writeFile = function (filePath, contents) {
 
 Fetcher.prototype.download = function (remoteUrl, localPath) {
   var me = this;
+  console.log("download: " + remoteUrl);
 
   return new Promise(function (resolve, reject) {
     request({ url: remoteUrl }, function (reqErr, res, body) {
@@ -109,6 +127,9 @@ Fetcher.prototype.generateLocalFilePath = function (remoteUrl) {
   if (remoteUrl === this.remoteUrl) {
     return "index.html";
   }
+  if (remoteUrl === this.manifestUrl) {
+    return "appcache.manifest";
+  }
   parsed = url.parse(remoteUrl, true, true);
   hash = crypto.createHash("sha1");
   hash.update(parsed.pathname + parsed.search);
@@ -122,6 +143,22 @@ Fetcher.prototype.persistFilesIndex = function () {
   return this.writeFile(filePath, content);
 };
 
+Fetcher.prototype.getManifestURL = function () {
+  var me = this;
+  var filePath = path.join(this.localPath, "index.html");
+
+  return me.readFile(filePath)
+  .then(function (contents) {
+    var $ = cheerio.load(contents);
+    var html$ = $("html");
+    var manifestUrl = html$.attr("manifest") || "";
+    if (manifestUrl) {
+      manifestUrl = url.resolve(me.remoteUrl, manifestUrl);
+    }
+    return Promise.resolve(manifestUrl);
+  });
+};
+
 Fetcher.prototype.go = function () {
   var me = this;
 
@@ -133,12 +170,25 @@ Fetcher.prototype.go = function () {
     return me.download(me.remoteUrl, me.localPath);
   })
   .then(function () {
+    return me.getManifestURL();
+  })
+  .then(function (manifestUrl) {
+    me.manifestUrl = manifestUrl;
+    return me.download(me.manifestUrl, me.localPath);
+  })
+  .then(function () {
+    return me.readFile(path.join(me.localPath, "appcache.manifest"));
+  })
+  .then(function (contents) {
+    var appCache = AppCache.parse(contents);
+    return me.writeFile(
+      path.join(me.localPath, "appcache.json"),
+      JSON.stringify(appCache, null, 2)
+    );
+  })
+  .then(function () {
     return me.persistFilesIndex();
   });
-};
-
-Fetcher.extractManifestURL = function () {
-
 };
 
 module.exports = Fetcher;

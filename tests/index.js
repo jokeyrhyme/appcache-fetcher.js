@@ -69,4 +69,20 @@ test("new Fetcher({ remoteUrl: 'http://everytimezone.com/' })", function (t) {
     tt.end();
   });
 
+  t.test("appcache.manifest", function (tt) {
+    tt.ok(fs.existsSync(path.join(outputPath, "appcache.manifest")));
+    tt.end();
+  });
+
+  t.test("appcache.json", function (tt) {
+    var appCache;
+    tt.ok(fs.existsSync(path.join(outputPath, "appcache.json")));
+    tt.doesNotThrow(function () {
+      appCache = require(path.join(outputPath, "appcache.json"));
+    });
+    tt.isObject(appCache);
+    tt.isArray(appCache.cache);
+    tt.end();
+  });
+
 });

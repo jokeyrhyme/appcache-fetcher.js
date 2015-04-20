@@ -9,6 +9,7 @@
   "repository": "https://github.com/jokeyrhyme/appcache-fetcher.js",
   "license": "BSD",
   "devDependencies": {
+    "appcache": "jokeyrhyme/appcache.js#cebad29",
     "eslint": "^0.18.0",
     "istanbul": "^0.3.13",
     "rimraf": "^2.3.2",
@@ -16,6 +17,7 @@
     "tape-chai": "^1.1.0"
   },
   "dependencies": {
+    "cheerio": "^0.19.0",
     "mkdirp": "^0.5.0",
     "request": "^2.55.0",
     "temp": "^0.8.1"
