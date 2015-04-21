@@ -2,8 +2,6 @@
 
 // Node.js built-ins
 
-var EventEmitter = require("events").EventEmitter;
-
 var crypto = require("crypto");
 var fs = require("fs");
 var path = require("path");
@@ -36,9 +34,6 @@ function Fetcher(opts) {
   this.index = {};
   this.manifestUrl = "";
 }
-
-Fetcher.prototype = Object.create(EventEmitter.prototype);
-Fetcher.prototype.constructor = Fetcher;
 
 Fetcher.prototype.afterTempPath = function () {
   var me = this;
@@ -110,14 +105,16 @@ Fetcher.prototype.download = function (remoteUrl, localPath) {
     request({ url: remoteUrl }, function (reqErr, res, body) {
       var filePath;
       var filename;
+      var errorMsg;
       if (reqErr) {
         console.error(reqErr);
         reject(reqErr);
         return;
       }
       if (res.statusCode !== 200) {
-        console.error("http statusCode: " + res.statusCode);
-        reject(new Error("http statusCode: " + res.statusCode));
+        errorMsg = remoteUrl + " : " + res.statusCode;
+        console.error(errorMsg);
+        reject(new Error(errorMsg));
         return;
       }
       filename = me.generateLocalFilePath(remoteUrl);
@@ -172,11 +169,14 @@ Fetcher.prototype.getManifestURL = function () {
 
 Fetcher.prototype.downloadAppCacheEntries = function () {
   var me = this;
-  var appCache = require(path.join(me.localPath, "appcache.json"));
+  var appCache;
   var remoteUrls;
 
+  delete require.cache[path.join(me.localPath, "appcache.json")];
+  appCache = require(path.join(me.localPath, "appcache.json"));
+
   remoteUrls = appCache.cache.map(function (entry) {
-    return url.resolve(me.remoteUrl, entry);
+    return url.resolve(me.remoteUrl, entry.replace(/^\/\//, "https://"));
   });
 
   return this.download(remoteUrls, me.localPath);

@@ -10,6 +10,7 @@ var path = require("path");
 // 3rd-party modules
 
 var cheerio = require("cheerio");
+var rimraf = require("rimraf");
 var test = require("tape");
 
 // our modules
@@ -22,6 +23,14 @@ var outputPath = path.join(process.cwd(), "output");
 
 test("new Fetcher({ remoteUrl: 'http://everytimezone.com/' })", function (t) {
   var fetcher;
+
+  t.test("wait...", function (tt) {
+    tt.plan(1);
+    rimraf.sync(outputPath);
+    setTimeout(function () {
+      tt.ok(true);
+    }, 1e3);
+  });
 
   t.test("constructor", function (tt) {
     tt.doesNotThrow(function () {
@@ -55,6 +64,7 @@ test("new Fetcher({ remoteUrl: 'http://everytimezone.com/' })", function (t) {
       var el$ = $(this);
       var href = el$.attr("href");
       if (href) {
+        tt.notEqual(href.indexOf("//"), 0, "link[href]: " + href);
         tt.notEqual(href.indexOf("http://"), 0, "link[href]: " + href);
         tt.notEqual(href.indexOf("https://"), 0, "link[href]: " + href);
       }
@@ -64,6 +74,7 @@ test("new Fetcher({ remoteUrl: 'http://everytimezone.com/' })", function (t) {
     //   var el$ = $(this);
     //   var href = el$.attr("src");
     //   if (href) {
+    //     tt.notEqual(href.indexOf("//"), 0, "script[src]: " + href);
     //     tt.notEqual(href.indexOf("http://"), 0, "script[src]: " + href);
     //     tt.notEqual(href.indexOf("https://"), 0, "script[src]: " + href);
     //   }
@@ -75,6 +86,7 @@ test("new Fetcher({ remoteUrl: 'http://everytimezone.com/' })", function (t) {
     var index;
     tt.ok(fs.existsSync(path.join(outputPath, "index.json")));
     tt.doesNotThrow(function () {
+      delete require.cache[path.join(outputPath, "index.json")];
       index = require(path.join(outputPath, "index.json"));
     });
     tt.isObject(index);
@@ -91,6 +103,7 @@ test("new Fetcher({ remoteUrl: 'http://everytimezone.com/' })", function (t) {
     var appCache;
     tt.ok(fs.existsSync(path.join(outputPath, "appcache.json")));
     tt.doesNotThrow(function () {
+      delete require.cache[path.join(outputPath, "appcache.json")];
       appCache = require(path.join(outputPath, "appcache.json"));
     });
     tt.isObject(appCache);
