@@ -11,6 +11,7 @@ var url = require("url");
 
 var AppCache = require("appcache");
 
+var browserify = require("browserify");
 var cheerio = require("cheerio");
 var mkdirp = require("mkdirp");
 var request = require("request");
@@ -89,6 +90,44 @@ Fetcher.prototype.writeFile = function (filePath, contents) {
       }
       resolve();
     });
+  });
+};
+
+Fetcher.prototype.generateAppCacheIndexShim = function () {
+  var me = this;
+  var filePath = path.join(this.localPath, "appCacheIndex.js");
+
+  return new Promise(function (resolve, reject) {
+    var b = browserify({
+      paths: [ me.localPath ],
+      standalone: "appCacheIndex"
+    });
+    b.add(path.join(__dirname, "lib", "app-cache-index.js"));
+    b.bundle()
+    .on("end", function () {
+      resolve();
+    })
+    .on("error", function (err) {
+      reject(err);
+    })
+    .pipe(fs.createWriteStream(filePath));
+  });
+};
+
+Fetcher.prototype.generateRequireShim = function () {
+  var filePath = path.join(this.localPath, "require.load.js");
+
+  return new Promise(function (resolve, reject) {
+    var b = browserify();
+    b.add("./lib/require.load.js");
+    b.bundle()
+    .on("end", function () {
+      resolve();
+    })
+    .on("error", function (err) {
+      reject(err);
+    })
+    .pipe(fs.createWriteStream(filePath));
   });
 };
 
@@ -233,6 +272,10 @@ Fetcher.prototype.postProcessHTML = function (filePath) {
         el$.attr("src", me.index.resolveLocalUrl(href));
       }
     });
+    if (path.basename(filePath) === "index.html") {
+      $("script").first().before("<script src='appCacheIndex.js'></script>");
+      $("script").last().after("</script><script src='require.load.js'></script>");
+    }
     return Promise.resolve($.html());
   })
   .then(function (contents) {
@@ -311,6 +354,12 @@ Fetcher.prototype.go = function () {
   })
   .then(function () {
     return me.postProcessDownloads();
+  })
+  .then(function () {
+    return Promise.all([
+      me.generateAppCacheIndexShim(),
+      me.generateRequireShim()
+    ]);
   });
 };
 
