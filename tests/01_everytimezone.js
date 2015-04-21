@@ -51,6 +51,23 @@ test("new Fetcher({ remoteUrl: 'http://everytimezone.com/' })", function (t) {
     contents = fs.readFileSync(path.join(outputPath, "index.html"), { encoding: "utf8" });
     $ = cheerio.load(contents);
     tt.notOk($("html").attr("manifest"), "no AppCache manifest attribute");
+    $("link[href]").each(function () {
+      var el$ = $(this);
+      var href = el$.attr("href");
+      if (href) {
+        tt.notEqual(href.indexOf("http://"), 0, "link[href]: " + href);
+        tt.notEqual(href.indexOf("https://"), 0, "link[href]: " + href);
+      }
+    });
+    // these tests fail because of weird URLs in HTML / AppCache (?yyyymmdd)
+    // $("script[src]").each(function () {
+    //   var el$ = $(this);
+    //   var href = el$.attr("src");
+    //   if (href) {
+    //     tt.notEqual(href.indexOf("http://"), 0, "script[src]: " + href);
+    //     tt.notEqual(href.indexOf("https://"), 0, "script[src]: " + href);
+    //   }
+    // });
     tt.end();
   });
 

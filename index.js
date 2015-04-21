@@ -18,6 +18,10 @@ var mkdirp = require("mkdirp");
 var request = require("request");
 var temp = require("temp").track();
 
+// our modules
+
+var urlVars = require("./lib/url_variations");
+
 // this module
 
 /**
@@ -29,7 +33,7 @@ function Fetcher(opts) {
   this.remoteUrl = opts.remoteUrl;
   this.localPath = opts.localPath;
   this.tempPath = "";
-  this.files = {};
+  this.index = {};
   this.manifestUrl = "";
 }
 
@@ -121,7 +125,7 @@ Fetcher.prototype.download = function (remoteUrl, localPath) {
 
       me.writeFile(filePath, body)
       .then(function () {
-        me.files[remoteUrl] = filename;
+        me.index[remoteUrl] = filename;
         resolve();
       }, reject);
     });
@@ -144,7 +148,7 @@ Fetcher.prototype.generateLocalFilePath = function (remoteUrl) {
 };
 
 Fetcher.prototype.persistFilesIndex = function () {
-  var content = JSON.stringify(this.files, null, 2);
+  var content = JSON.stringify(this.index, null, 2);
   var filePath = path.join(this.localPath, "index.json");
 
   return this.writeFile(filePath, content);
@@ -178,6 +182,24 @@ Fetcher.prototype.downloadAppCacheEntries = function () {
   return this.download(remoteUrls, me.localPath);
 };
 
+Fetcher.prototype.resolveLocalURL = function (remoteUrl) {
+  var me = this;
+  var absUrl;
+  var localHref;
+  var variations, v, vLength, variation;
+  absUrl = url.resolve(this.remoteUrl, remoteUrl);
+  variations = urlVars.getURLVariations(absUrl);
+  vLength = variations.length;
+  for (v = 0; v < vLength; v++) {
+    variation = variations[v];
+    localHref = me.index[variation];
+    if (localHref) {
+      return localHref;
+    }
+  }
+  return absUrl;
+};
+
 Fetcher.EXTENSIONS_TO_PROCESS = [ ".css", ".html", ".js" ];
 
 Fetcher.prototype.postProcessCSS = function (filePath) {
@@ -192,6 +214,20 @@ Fetcher.prototype.postProcessHTML = function (filePath) {
   .then(function (contents) {
     var $ = cheerio.load(contents);
     $("html").removeAttr("manifest"); // drop AppCache manifest attributes
+    $("link[href]").each(function () {
+      var el$ = $(this);
+      var href = el$.attr("href");
+      if (href) {
+        el$.attr("href", me.resolveLocalURL(href));
+      }
+    });
+    $("script[src]").each(function () {
+      var el$ = $(this);
+      var href = el$.attr("src");
+      if (href) {
+        el$.attr("src", me.resolveLocalURL(href));
+      }
+    });
     return Promise.resolve($.html());
   })
   .then(function (contents) {
@@ -272,5 +308,9 @@ Fetcher.prototype.go = function () {
     return me.postProcessDownloads();
   });
 };
+
+Fetcher.getURLVariationsOnQuery = urlVars.getURLVariationsOnQuery;
+Fetcher.getURLVariationsOnScheme = urlVars.getURLVariationsOnScheme;
+Fetcher.getURLVariations = urlVars.getURLVariations;
 
 module.exports = Fetcher;
