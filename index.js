@@ -18,6 +18,8 @@ var temp = require("temp").track();
 
 // our modules
 
+var FetcherIndex = require("./lib/fetcher-index");
+
 var urlVars = require("./lib/url_variations");
 
 // this module
@@ -31,7 +33,7 @@ function Fetcher(opts) {
   this.remoteUrl = opts.remoteUrl;
   this.localPath = opts.localPath;
   this.tempPath = "";
-  this.index = {};
+  this.index = new FetcherIndex({ remoteUrl: this.remoteUrl });
   this.manifestUrl = "";
 }
 
@@ -120,7 +122,7 @@ Fetcher.prototype.download = function (remoteUrl, localPath) {
         reject(new Error(errorMsg));
         return;
       }
-      me.index[remoteUrl] = filename;
+      me.index.set(remoteUrl, filename);
     })
     .on("end", function () {
       resolve();
@@ -182,41 +184,12 @@ Fetcher.prototype.downloadAppCacheEntries = function () {
   return this.download(remoteUrls, me.localPath);
 };
 
-Fetcher.prototype.resolveRemoteUrl = function (localUrl) {
-  var me = this;
-  var remoteUrl;
-  Object.keys(this.index).forEach(function (key) {
-    if (me.index[key] === localUrl) {
-      remoteUrl = key;
-    }
-  });
-  return remoteUrl || null;
-};
-
-Fetcher.prototype.resolveLocalURL = function (remoteUrl) {
-  var me = this;
-  var absUrl;
-  var localHref;
-  var variations, v, vLength, variation;
-  absUrl = url.resolve(this.remoteUrl, remoteUrl);
-  variations = urlVars.getURLVariations(absUrl);
-  vLength = variations.length;
-  for (v = 0; v < vLength; v++) {
-    variation = variations[v];
-    localHref = me.index[variation];
-    if (localHref) {
-      return localHref;
-    }
-  }
-  return absUrl;
-};
-
 Fetcher.EXTENSIONS_TO_PROCESS = [ ".css", ".html", ".js" ];
 
 Fetcher.prototype.postProcessCSS = function (filePath) {
   var me = this;
   // original remote URL for the given CSS file
-  var cssRemoteUrl = this.resolveRemoteUrl(path.basename(filePath));
+  var cssRemoteUrl = this.index.resolveRemoteUrl(path.basename(filePath));
   console.log("postProcessCSS:", path.basename(filePath), cssRemoteUrl);
 
   return this.readFile(filePath)
@@ -229,7 +202,7 @@ Fetcher.prototype.postProcessCSS = function (filePath) {
         return cssUrlStmt; // noop for Data URIs
       }
       remoteUrl = url.resolve(cssRemoteUrl, cssUrl);
-      localUrl = me.resolveLocalURL(remoteUrl);
+      localUrl = me.index.resolveLocalUrl(remoteUrl);
       return "url(" + localUrl + ")";
     });
     return Promise.resolve(css);
@@ -250,14 +223,14 @@ Fetcher.prototype.postProcessHTML = function (filePath) {
       var el$ = $(this);
       var href = el$.attr("href");
       if (href) {
-        el$.attr("href", me.resolveLocalURL(href));
+        el$.attr("href", me.index.resolveLocalUrl(href));
       }
     });
     $("script[src]").each(function () {
       var el$ = $(this);
       var href = el$.attr("src");
       if (href) {
-        el$.attr("src", me.resolveLocalURL(href));
+        el$.attr("src", me.index.resolveLocalUrl(href));
       }
     });
     return Promise.resolve($.html());
