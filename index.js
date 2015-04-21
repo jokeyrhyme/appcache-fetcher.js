@@ -92,6 +92,8 @@ Fetcher.prototype.writeFile = function (filePath, contents) {
 
 Fetcher.prototype.download = function (remoteUrl, localPath) {
   var me = this;
+  var filePath;
+  var filename;
 
   if (Array.isArray(remoteUrl)) {
     return Promise.all(remoteUrl.map(function (r) {
@@ -101,31 +103,29 @@ Fetcher.prototype.download = function (remoteUrl, localPath) {
 
   console.log("download:", remoteUrl);
 
+  filename = me.generateLocalFilePath(remoteUrl);
+  filePath = path.join(localPath, filename);
+
   return new Promise(function (resolve, reject) {
-    request({ url: remoteUrl }, function (reqErr, res, body) {
-      var filePath;
-      var filename;
+    request(remoteUrl)
+    .on("error", function (err) {
+      console.error(err);
+      reject(err);
+    })
+    .on("response", function (res) {
       var errorMsg;
-      if (reqErr) {
-        console.error(reqErr);
-        reject(reqErr);
-        return;
-      }
       if (res.statusCode !== 200) {
         errorMsg = remoteUrl + " : " + res.statusCode;
         console.error(errorMsg);
         reject(new Error(errorMsg));
         return;
       }
-      filename = me.generateLocalFilePath(remoteUrl);
-      filePath = path.join(localPath, filename);
-
-      me.writeFile(filePath, body)
-      .then(function () {
-        me.index[remoteUrl] = filename;
-        resolve();
-      }, reject);
-    });
+      me.index[remoteUrl] = filename;
+    })
+    .on("end", function () {
+      resolve();
+    })
+    .pipe(fs.createWriteStream(filePath));
   });
 };
 
@@ -182,6 +182,17 @@ Fetcher.prototype.downloadAppCacheEntries = function () {
   return this.download(remoteUrls, me.localPath);
 };
 
+Fetcher.prototype.resolveRemoteUrl = function (localUrl) {
+  var me = this;
+  var remoteUrl;
+  Object.keys(this.index).forEach(function (key) {
+    if (me.index[key] === localUrl) {
+      remoteUrl = key;
+    }
+  });
+  return remoteUrl || null;
+};
+
 Fetcher.prototype.resolveLocalURL = function (remoteUrl) {
   var me = this;
   var absUrl;
@@ -203,8 +214,29 @@ Fetcher.prototype.resolveLocalURL = function (remoteUrl) {
 Fetcher.EXTENSIONS_TO_PROCESS = [ ".css", ".html", ".js" ];
 
 Fetcher.prototype.postProcessCSS = function (filePath) {
-  console.log("postProcessCSS:");
-  return this.readFile(filePath);
+  var me = this;
+  // original remote URL for the given CSS file
+  var cssRemoteUrl = this.resolveRemoteUrl(path.basename(filePath));
+  console.log("postProcessCSS:", path.basename(filePath), cssRemoteUrl);
+
+  return this.readFile(filePath)
+  .then(function (contents) {
+    var css = contents.replace(/url\(['"\s]*[^\(\)]+['"\s]*\)/g, function (cssUrlStmt) {
+      var cssUrl = cssUrlStmt.replace(/url\(['"\s]*([^\(\)]+)['"\s]*\)/, "$1");
+      var remoteUrl;
+      var localUrl;
+      if (cssUrl.indexOf("data:") === 0) {
+        return cssUrlStmt; // noop for Data URIs
+      }
+      remoteUrl = url.resolve(cssRemoteUrl, cssUrl);
+      localUrl = me.resolveLocalURL(remoteUrl);
+      return "url(" + localUrl + ")";
+    });
+    return Promise.resolve(css);
+  })
+  .then(function (contents) {
+    return me.writeFile(filePath, contents);
+  });
 };
 
 Fetcher.prototype.postProcessHTML = function (filePath) {

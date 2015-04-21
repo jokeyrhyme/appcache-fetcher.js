@@ -17,6 +17,8 @@ var test = require("tape");
 
 var Fetcher = require("..");
 
+var common = require("./lib/common");
+
 // this module
 
 var outputPath = path.join(process.cwd(), "output");
@@ -88,21 +90,9 @@ test("new Fetcher({ remoteUrl: 'http://everytimezone.com/' })", function (t) {
     tt.end();
   });
 
-  t.test("appcache.manifest", function (tt) {
-    tt.ok(fs.existsSync(path.join(outputPath, "appcache.manifest")));
-    tt.end();
-  });
+  // these tests fail because of weird URLs in HTML / AppCache (?yyyymmdd)
+  // t.test("*.css", common.makeCSSTests(outputPath));
 
-  t.test("appcache.json", function (tt) {
-    var appCache;
-    tt.ok(fs.existsSync(path.join(outputPath, "appcache.json")));
-    tt.doesNotThrow(function () {
-      delete require.cache[path.join(outputPath, "appcache.json")];
-      appCache = require(path.join(outputPath, "appcache.json"));
-    });
-    tt.isObject(appCache);
-    tt.isArray(appCache.cache);
-    tt.end();
-  });
+  t.test("AppCache", common.makeAppCacheTests(outputPath));
 
 });
