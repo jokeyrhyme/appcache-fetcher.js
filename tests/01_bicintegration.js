@@ -21,7 +21,7 @@ var Fetcher = require("..");
 
 var outputPath = path.join(process.cwd(), "output");
 
-test("new Fetcher({ remoteUrl: 'http://everytimezone.com/' })", function (t) {
+test("new Fetcher({ remoteUrl: 'http://blinkm.co/integration' })", function (t) {
   var fetcher;
 
   t.test("constructor", function (tt) {
@@ -29,7 +29,7 @@ test("new Fetcher({ remoteUrl: 'http://everytimezone.com/' })", function (t) {
 
     tt.doesNotThrow(function () {
       fetcher = new Fetcher({
-        remoteUrl: "http://everytimezone.com/",
+        remoteUrl: "http://blinkm.co/integration",
         localPath: outputPath
       });
     });
@@ -63,16 +63,15 @@ test("new Fetcher({ remoteUrl: 'http://everytimezone.com/' })", function (t) {
         tt.notEqual(href.indexOf("https://"), 0, "link[href]: " + href);
       }
     });
-    // these tests fail because of weird URLs in HTML / AppCache (?yyyymmdd)
-    // $("script[src]").each(function () {
-    //   var el$ = $(this);
-    //   var href = el$.attr("src");
-    //   if (href) {
-    //     tt.notEqual(href.indexOf("//"), 0, "script[src]: " + href);
-    //     tt.notEqual(href.indexOf("http://"), 0, "script[src]: " + href);
-    //     tt.notEqual(href.indexOf("https://"), 0, "script[src]: " + href);
-    //   }
-    // });
+    $("script[src]").each(function () {
+      var el$ = $(this);
+      var href = el$.attr("src");
+      if (href) {
+        tt.notEqual(href.indexOf("//"), 0, "script[src]: " + href);
+        tt.notEqual(href.indexOf("http://"), 0, "script[src]: " + href);
+        tt.notEqual(href.indexOf("https://"), 0, "script[src]: " + href);
+      }
+    });
     tt.end();
   });
 
@@ -84,7 +83,7 @@ test("new Fetcher({ remoteUrl: 'http://everytimezone.com/' })", function (t) {
       index = require(path.join(outputPath, "index.json"));
     });
     tt.isObject(index);
-    tt.equal(index["http://everytimezone.com/"], "index.html");
+    tt.equal(index["http://blinkm.co/integration"], "index.html");
     tt.end();
   });
 
