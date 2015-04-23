@@ -12,7 +12,6 @@ var url = require("url");
 var AppCache = require("appcache");
 
 var browserify = require("browserify");
-var cheerio = require("cheerio");
 var mkdirp = require("mkdirp");
 var request = require("request");
 var temp = require("temp").track();
@@ -36,11 +35,17 @@ function Fetcher(opts) {
   this.tempPath = "";
   this.index = new FetcherIndex({ remoteUrl: this.remoteUrl });
   this.manifestUrl = "";
+
   this.transforms = {
     css: [],
     html: [],
     js: []
   };
+  this.extractors = {
+    manifestUrl: []
+  };
+
+  this.addExtractor("manifestUrl", require("./lib/extractors/manifestUrl.w3c"));
 
   this.addTransform("css", require("./lib/transforms/css.localUrls"));
   this.addTransform("html", require("./lib/transforms/html.removeManifest"));
@@ -49,6 +54,13 @@ function Fetcher(opts) {
   this.addTransform("html", require("./lib/transforms/html.injectAppCacheIndex"));
   this.addTransform("html", require("./lib/transforms/html.injectRequireJsShim"));
 }
+
+Fetcher.prototype.addExtractor = function (prop, fn) {
+  if (!Array.isArray(this.extractors[prop])) {
+    this.extractors[prop] = [];
+  }
+  this.extractors[prop].push(fn);
+};
 
 Fetcher.prototype.addTransform = function (ext, fn) {
   if (!Array.isArray(this.transforms[ext])) {
@@ -214,16 +226,28 @@ Fetcher.prototype.persistFilesIndex = function () {
 Fetcher.prototype.getManifestURL = function () {
   var me = this;
   var filePath = path.join(this.localPath, "index.html");
+  var extractors = this.extractors.manifestUrl;
+
+  if (!Array.isArray(extractors) || !extractors.length) {
+    return Promise.reject(new Error("no manifestUrl extractors"));
+  }
 
   return me.readFile(filePath)
   .then(function (contents) {
-    var $ = cheerio.load(contents);
-    var html$ = $("html");
-    var manifestUrl = html$.attr("manifest") || "";
-    if (manifestUrl) {
-      manifestUrl = url.resolve(me.remoteUrl, manifestUrl);
+    var manifestUrl;
+    var e, eLength, extractor;
+    eLength = extractors.length;
+    for (e = 0; e < eLength; e++) {
+      extractor = extractors[e];
+      manifestUrl = extractor({
+        contents: contents,
+        remoteUrl: me.remoteUrl
+      });
+      if (manifestUrl) {
+        return Promise.resolve(manifestUrl);
+      }
     }
-    return Promise.resolve(manifestUrl);
+    return Promise.resolve("");
   });
 };
 
@@ -328,6 +352,9 @@ Fetcher.prototype.go = function () {
       me.generateAppCacheIndexShim(),
       me.generateRequireShim()
     ]);
+  })
+  .then(null, function (err) {
+    console.error(err);
   });
 };
 
