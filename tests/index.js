@@ -90,5 +90,3 @@ test("Fetcher.getURLVariations()", function (t) {
 require("./01_everytimezone");
 
 require("./01_devdocs");
-
-require("./01_bicintegration");
