@@ -138,7 +138,7 @@ Fetcher.prototype.generateRequireShim = function () {
 
   return new Promise(function (resolve, reject) {
     var b = browserify();
-    b.add("./lib/require.load.js");
+    b.add(path.join(__dirname, "lib", "require.load.js"));
     b.bundle()
     .on("end", function () {
       resolve();
