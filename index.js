@@ -36,7 +36,26 @@ function Fetcher(opts) {
   this.tempPath = "";
   this.index = new FetcherIndex({ remoteUrl: this.remoteUrl });
   this.manifestUrl = "";
+  this.transforms = {
+    css: [],
+    html: [],
+    js: []
+  };
+
+  this.addTransform("css", require("./lib/transforms/css.localUrls"));
+  this.addTransform("html", require("./lib/transforms/html.removeManifest"));
+  this.addTransform("html", require("./lib/transforms/html.localLinkHrefs"));
+  this.addTransform("html", require("./lib/transforms/html.localScriptSrcs"));
+  this.addTransform("html", require("./lib/transforms/html.injectAppCacheIndex"));
+  this.addTransform("html", require("./lib/transforms/html.injectRequireJsShim"));
 }
+
+Fetcher.prototype.addTransform = function (ext, fn) {
+  if (!Array.isArray(this.transforms[ext])) {
+    this.transforms[ext] = [];
+  }
+  this.transforms[ext].push(fn);
+};
 
 Fetcher.prototype.afterTempPath = function () {
   var me = this;
@@ -223,82 +242,31 @@ Fetcher.prototype.downloadAppCacheEntries = function () {
   return this.download(remoteUrls, me.localPath);
 };
 
-Fetcher.EXTENSIONS_TO_PROCESS = [ ".css", ".html", ".js" ];
-
-Fetcher.prototype.postProcessCSS = function (filePath) {
-  var me = this;
-  // original remote URL for the given CSS file
-  var cssRemoteUrl = this.index.resolveRemoteUrl(path.basename(filePath));
-  console.log("postProcessCSS:", path.basename(filePath), cssRemoteUrl);
-
-  return this.readFile(filePath)
-  .then(function (contents) {
-    var css = contents.replace(/url\(['"\s]*[^\(\)]+['"\s]*\)/g, function (cssUrlStmt) {
-      var cssUrl = cssUrlStmt.replace(/url\(['"\s]*([^\(\)]+)['"\s]*\)/, "$1");
-      var remoteUrl;
-      var localUrl;
-      if (cssUrl.indexOf("data:") === 0) {
-        return cssUrlStmt; // noop for Data URIs
-      }
-      remoteUrl = url.resolve(cssRemoteUrl, cssUrl);
-      localUrl = me.index.resolveLocalUrl(remoteUrl);
-      return "url(" + localUrl + ")";
-    });
-    return Promise.resolve(css);
-  })
-  .then(function (contents) {
-    return me.writeFile(filePath, contents);
-  });
-};
-
-Fetcher.prototype.postProcessHTML = function (filePath) {
-  var me = this;
-  console.log("postProcessHTML:");
-  return this.readFile(filePath)
-  .then(function (contents) {
-    var $ = cheerio.load(contents);
-    $("html").removeAttr("manifest"); // drop AppCache manifest attributes
-    $("link[href]").each(function () {
-      var el$ = $(this);
-      var href = el$.attr("href");
-      if (href) {
-        el$.attr("href", me.index.resolveLocalUrl(href));
-      }
-    });
-    $("script[src]").each(function () {
-      var el$ = $(this);
-      var href = el$.attr("src");
-      if (href) {
-        el$.attr("src", me.index.resolveLocalUrl(href));
-      }
-    });
-    if (path.basename(filePath) === "index.html") {
-      $("script").first().before("<script src='appCacheIndex.js'></script>");
-      $("script").last().after("</script><script src='require.load.js'></script>");
-    }
-    return Promise.resolve($.html());
-  })
-  .then(function (contents) {
-    return me.writeFile(filePath, contents);
-  });
-};
-
-Fetcher.prototype.postProcessJS = function (filePath) {
-  console.log("postProcessJS:");
-  return this.readFile(filePath);
-};
-
 Fetcher.prototype.postProcessFile = function (filePath) {
   var me = this;
-  var ext = path.extname(filePath);
-  if (Fetcher.EXTENSIONS_TO_PROCESS.indexOf(ext) === -1) {
-    console.log("postProcessFile: skipping", filePath.replace(process.cwd(), ""));
+  var ext = path.extname(filePath).toLowerCase().replace(".", "");
+  var transforms = me.transforms[ext];
+  if (!Array.isArray(transforms) || !transforms.length) {
     return Promise.resolve();
   }
-  return new Promise(function (resolve, reject) {
-    console.log("postProcessFile:", filePath.replace(process.cwd(), ""));
-    ext = ext.toUpperCase().replace(".", "");
-    me["postProcess" + ext](filePath).then(resolve, reject);
+  console.log("postProcessFile:", filePath.replace(process.cwd(), ""));
+  return this.readFile(filePath)
+  .then(function (contents) {
+    var transformedContents = contents;
+    var t, tLength, transform;
+    tLength = transforms.length;
+    for (t = 0; t < tLength; t++) {
+      transform = transforms[t];
+      transformedContents = transform({
+        contents: transformedContents,
+        filePath: filePath,
+        index: me.index
+      });
+    }
+    return Promise.resolve(transformedContents);
+  })
+  .then(function (contents) {
+    return me.writeFile(filePath, contents);
   });
 };
 
