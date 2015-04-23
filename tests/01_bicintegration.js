@@ -21,9 +21,11 @@ var common = require("./lib/common");
 
 // this module
 
+var remoteUrl = "http://blinkm.co/integration";
+
 var outputPath = path.join(process.cwd(), "output");
 
-test("new Fetcher({ remoteUrl: 'http://blinkm.co/integration' })", function (t) {
+test("new Fetcher({ remoteUrl: '" + remoteUrl + "' })", function (t) {
   var fetcher;
 
   t.test("constructor", function (tt) {
@@ -31,7 +33,7 @@ test("new Fetcher({ remoteUrl: 'http://blinkm.co/integration' })", function (t) 
 
     tt.doesNotThrow(function () {
       fetcher = new Fetcher({
-        remoteUrl: "http://blinkm.co/integration",
+        remoteUrl: remoteUrl,
         localPath: outputPath
       });
     });
@@ -56,38 +58,12 @@ test("new Fetcher({ remoteUrl: 'http://blinkm.co/integration' })", function (t) 
     contents = fs.readFileSync(path.join(outputPath, "index.html"), { encoding: "utf8" });
     $ = cheerio.load(contents);
     tt.notOk($("html").attr("manifest"), "no AppCache manifest attribute");
-    $("link[href]").each(function () {
-      var el$ = $(this);
-      var href = el$.attr("href");
-      if (href) {
-        tt.notEqual(href.indexOf("//"), 0, "link[href]: " + href);
-        tt.notEqual(href.indexOf("http://"), 0, "link[href]: " + href);
-        tt.notEqual(href.indexOf("https://"), 0, "link[href]: " + href);
-      }
-    });
-    $("script[src]").each(function () {
-      var el$ = $(this);
-      var href = el$.attr("src");
-      if (href) {
-        tt.notEqual(href.indexOf("//"), 0, "script[src]: " + href);
-        tt.notEqual(href.indexOf("http://"), 0, "script[src]: " + href);
-        tt.notEqual(href.indexOf("https://"), 0, "script[src]: " + href);
-      }
-    });
+    common.testHTMLLinkHref($, tt);
+    common.testHTMLScriptSrc($, tt);
     tt.end();
   });
 
-  t.test("index.json", function (tt) {
-    var index;
-    tt.ok(fs.existsSync(path.join(outputPath, "index.json")));
-    tt.doesNotThrow(function () {
-      delete require.cache[path.join(outputPath, "index.json")];
-      index = require(path.join(outputPath, "index.json"));
-    });
-    tt.isObject(index);
-    tt.equal(index["http://blinkm.co/integration"], "index.html");
-    tt.end();
-  });
+  t.test("index.json", common.makeIndexJSONTests(outputPath, remoteUrl));
 
   t.test("*.css", common.makeCSSTests(outputPath));
 

@@ -67,6 +67,44 @@ module.exports = {
 
       tt.end();
     };
+  },
+
+  makeIndexJSONTests: function (outputPath, remoteUrl) {
+    return function (tt) {
+      var index;
+      tt.ok(fs.existsSync(path.join(outputPath, "index.json")));
+      tt.doesNotThrow(function () {
+        delete require.cache[path.join(outputPath, "index.json")];
+        index = require(path.join(outputPath, "index.json"));
+      });
+      tt.isObject(index);
+      tt.equal(index[remoteUrl], "index.html");
+      tt.end();
+    };
+  },
+
+  testHTMLLinkHref: function ($, tt) {
+    $("link[href]").each(function () {
+      var el$ = $(this);
+      var href = el$.attr("href");
+      if (href) {
+        tt.notEqual(href.indexOf("//"), 0, "link[href]: " + href);
+        tt.notEqual(href.indexOf("http://"), 0, "link[href]: " + href);
+        tt.notEqual(href.indexOf("https://"), 0, "link[href]: " + href);
+      }
+    });
+  },
+
+  testHTMLScriptSrc: function ($, tt) {
+    $("script[src]").each(function () {
+      var el$ = $(this);
+      var href = el$.attr("src");
+      if (href) {
+        tt.notEqual(href.indexOf("//"), 0, "script[src]: " + href);
+        tt.notEqual(href.indexOf("http://"), 0, "script[src]: " + href);
+        tt.notEqual(href.indexOf("https://"), 0, "script[src]: " + href);
+      }
+    });
   }
 
 };
