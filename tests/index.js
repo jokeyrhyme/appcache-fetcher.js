@@ -87,6 +87,8 @@ test("Fetcher.getURLVariations()", function (t) {
   t.end();
 });
 
+require("./00_shim_jquery_ajax");
+
 require("./01_everytimezone");
 
 require("./01_devdocs");
