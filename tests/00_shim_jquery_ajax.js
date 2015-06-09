@@ -1,12 +1,16 @@
 'use strict';
 
+// Node.js built-ins
+
+var path = require('path');
+
 // 3rd-party modules
 
 var test = require('tape');
 
 // our modules
 
-var FetcherIndex = require('../lib/fetcher-index');
+var FetcherIndex = require(path.join(__dirname, '..', 'lib', 'fetcher-index'));
 
 // this modules
 
@@ -19,7 +23,7 @@ test('shim: jQuery.ajax', function (t) {
     $.ajax = function () {
       return Array.prototype.slice.call(arguments, 0);
     };
-    require('../lib/shims/jquery.ajax')(fetcherIndex, $, 'ajax');
+    require(path.join(__dirname, '..', 'lib', 'shims', 'jquery.ajax'))(fetcherIndex, $, 'ajax');
 
     args = [];
     tt.deepEqual($.ajax.apply($, args), args, JSON.stringify(args) + ': noop');
@@ -51,7 +55,7 @@ test('shim: jQuery.ajax', function (t) {
     $.ajax = function () {
       return Array.prototype.slice.call(arguments, 0);
     };
-    require('../lib/shims/jquery.ajax')(fetcherIndex, $, 'ajax');
+    require(path.join(__dirname, '..', 'lib', 'shims', 'jquery.ajax'))(fetcherIndex, $, 'ajax');
 
     fetcherIndex.set('http://example.com/remote-abc.js', 'local-abc.js');
     fetcherIndex.set('http://example.com/remote-def.js', 'local-def.js');

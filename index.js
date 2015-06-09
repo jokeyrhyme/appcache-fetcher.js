@@ -18,9 +18,9 @@ var temp = require('temp').track();
 
 // our modules
 
-var FetcherIndex = require('./lib/fetcher-index');
+var FetcherIndex = require(path.join(__dirname, 'lib', 'fetcher-index'));
 
-var urlVars = require('./lib/url_variations');
+var urlVars = require(path.join(__dirname, 'lib', 'url_variations'));
 
 // this module
 
@@ -28,7 +28,7 @@ var urlVars = require('./lib/url_variations');
  * @constructor
  * @param {Object} opts { remoteUrl: '', localPath: '' }
  */
-function Fetcher(opts) {
+function Fetcher (opts) {
   this.date = new Date();
   this.remoteUrl = opts.remoteUrl;
   this.localPath = opts.localPath;
@@ -45,14 +45,14 @@ function Fetcher(opts) {
     manifestUrl: []
   };
 
-  this.addExtractor('manifestUrl', require('./lib/extractors/manifestUrl.w3c'));
+  this.addExtractor('manifestUrl', require(path.join(__dirname, 'lib', 'extractors', 'manifestUrl.w3c')));
 
-  this.addTransform('css', require('./lib/transforms/css.localUrls'));
-  this.addTransform('html', require('./lib/transforms/html.removeManifest'));
-  this.addTransform('html', require('./lib/transforms/html.localLinkHrefs'));
-  this.addTransform('html', require('./lib/transforms/html.localScriptSrcs'));
-  this.addTransform('html', require('./lib/transforms/html.injectAppCacheIndex'));
-  this.addTransform('html', require('./lib/transforms/html.injectRequireJsShim'));
+  this.addTransform('css', require(path.join(__dirname, 'lib', 'transforms', 'css.localUrls')));
+  this.addTransform('html', require(path.join(__dirname, 'lib', 'transforms', 'html.removeManifest')));
+  this.addTransform('html', require(path.join(__dirname, 'lib', 'transforms', 'html.localLinkHrefs')));
+  this.addTransform('html', require(path.join(__dirname, 'lib', 'transforms', 'html.localScriptSrcs')));
+  this.addTransform('html', require(path.join(__dirname, 'lib', 'transforms', 'html.injectAppCacheIndex')));
+  this.addTransform('html', require(path.join(__dirname, 'lib', 'transforms', 'html.injectRequireJsShim')));
 }
 
 Fetcher.prototype.addExtractor = function (prop, fn) {

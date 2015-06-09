@@ -17,7 +17,7 @@ var test = require('tape');
 
 var Fetcher = require('..');
 
-var common = require('./lib/common');
+var common = require(path.join(__dirname, 'lib', 'common'));
 
 // this module
 

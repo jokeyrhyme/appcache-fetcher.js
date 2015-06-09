@@ -2,6 +2,10 @@
 
 'use strict';
 
+// Node.js built-ins
+
+var path = require('path');
+
 // 3rd-party modules
 
 var test = require('tape');
@@ -87,8 +91,8 @@ test('Fetcher.getURLVariations()', function (t) {
   t.end();
 });
 
-require('./00_shim_jquery_ajax');
+require(path.join(__dirname, '00_shim_jquery_ajax'));
 
-require('./01_everytimezone');
+require(path.join(__dirname, '01_everytimezone'));
 
-require('./01_devdocs');
+require(path.join(__dirname, '01_devdocs'));
