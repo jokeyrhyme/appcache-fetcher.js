@@ -9,7 +9,7 @@ var url = require('url');
 
 // 3rd-party modules
 
-var AppCache = require('appcache');
+var AppCache = require('@jokeyrhyme/appcache');
 
 var browserify = require('browserify');
 var mkdirp = require('mkdirp');

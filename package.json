@@ -7,7 +7,7 @@
     "test": "eslint . && istanbul cover tests/"
   },
   "repository": "https://github.com/jokeyrhyme/appcache-fetcher.js",
-  "license": "BSD",
+  "license": "BSD-2-Clause",
   "devDependencies": {
     "eslint": "^0.22",
     "istanbul": "^0.3.13",
