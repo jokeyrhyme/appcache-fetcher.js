@@ -1,85 +1,85 @@
 /*eslint-disable no-sync*/ // tests can be synchronous, relax!
 
-"use strict";
+'use strict';
 
 // 3rd-party modules
 
-var test = require("tape");
+var test = require('tape');
 
 // our modules
 
-var Fetcher = require("..");
+var Fetcher = require('..');
 
 // this module
 
-require("tape-chai");
+require('tape-chai');
 
-test("Fetcher", function (t) {
+test('Fetcher', function (t) {
   t.isFunction(Fetcher);
   t.end();
 });
 
-test("Fetcher.getURLVariations()", function (t) {
+test('Fetcher.getURLVariations()', function (t) {
 
-  t.test("https://domain.com/example", function (tt) {
-    var variations = Fetcher.getURLVariationsOnScheme("https://domain.com/example");
+  t.test('https://domain.com/example', function (tt) {
+    var variations = Fetcher.getURLVariationsOnScheme('https://domain.com/example');
     tt.deepEqual(variations, [
-      "https://domain.com/example",
-      "http://domain.com/example"
+      'https://domain.com/example',
+      'http://domain.com/example'
     ]);
     tt.end();
   });
 
-  t.test("http://domain.com/example", function (tt) {
-    var variations = Fetcher.getURLVariations("http://domain.com/example");
+  t.test('http://domain.com/example', function (tt) {
+    var variations = Fetcher.getURLVariations('http://domain.com/example');
     tt.deepEqual(variations, [
-      "https://domain.com/example",
-      "http://domain.com/example"
+      'https://domain.com/example',
+      'http://domain.com/example'
     ]);
     tt.end();
   });
 
-  t.test("https://domain.com/example", function (tt) {
-    var variations = Fetcher.getURLVariationsOnScheme("https://domain.com/example");
+  t.test('https://domain.com/example', function (tt) {
+    var variations = Fetcher.getURLVariationsOnScheme('https://domain.com/example');
     tt.deepEqual(variations, [
-      "https://domain.com/example",
-      "http://domain.com/example"
+      'https://domain.com/example',
+      'http://domain.com/example'
     ]);
     tt.end();
   });
 
-  t.test("http://domain.com/example", function (tt) {
-    var variations = Fetcher.getURLVariations("http://domain.com/example");
+  t.test('http://domain.com/example', function (tt) {
+    var variations = Fetcher.getURLVariations('http://domain.com/example');
     tt.deepEqual(variations, [
-      "https://domain.com/example",
-      "http://domain.com/example"
+      'https://domain.com/example',
+      'http://domain.com/example'
     ]);
     tt.end();
   });
 
-  t.test("http://domain.com/example?abc&def=ghi", function (tt) {
-    var variations = Fetcher.getURLVariationsOnQuery("http://domain.com/example?abc&def=ghi");
+  t.test('http://domain.com/example?abc&def=ghi', function (tt) {
+    var variations = Fetcher.getURLVariationsOnQuery('http://domain.com/example?abc&def=ghi');
     tt.deepEqual(variations, [
-      "http://domain.com/example?abc&def=ghi",
-      "http://domain.com/example?def=ghi",
-      "http://domain.com/example?abc=",
-      "http://domain.com/example"
+      'http://domain.com/example?abc&def=ghi',
+      'http://domain.com/example?def=ghi',
+      'http://domain.com/example?abc=',
+      'http://domain.com/example'
     ]);
     tt.end();
   });
 
-  t.test("http://domain.com/example?abc&def=ghi", function (tt) {
-    var variations = Fetcher.getURLVariations("http://domain.com/example?abc&def=ghi");
+  t.test('http://domain.com/example?abc&def=ghi', function (tt) {
+    var variations = Fetcher.getURLVariations('http://domain.com/example?abc&def=ghi');
     tt.deepEqual(variations, [
-      "https://domain.com/example?abc&def=ghi",
-      "http://domain.com/example?abc&def=ghi"
+      'https://domain.com/example?abc&def=ghi',
+      'http://domain.com/example?abc&def=ghi'
       // disable this for now
-      // "https://domain.com/example?def=ghi",
-      // "http://domain.com/example?def=ghi",
-      // "https://domain.com/example?abc=",
-      // "http://domain.com/example?abc=",
-      // "https://domain.com/example",
-      // "http://domain.com/example"
+      // 'https://domain.com/example?def=ghi',
+      // 'http://domain.com/example?def=ghi',
+      // 'https://domain.com/example?abc=',
+      // 'http://domain.com/example?abc=',
+      // 'https://domain.com/example',
+      // 'http://domain.com/example'
     ]);
     tt.end();
   });
@@ -87,8 +87,8 @@ test("Fetcher.getURLVariations()", function (t) {
   t.end();
 });
 
-require("./00_shim_jquery_ajax");
+require('./00_shim_jquery_ajax');
 
-require("./01_everytimezone");
+require('./01_everytimezone');
 
-require("./01_devdocs");
+require('./01_devdocs');

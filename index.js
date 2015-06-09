@@ -1,40 +1,40 @@
-"use strict";
+'use strict';
 
 // Node.js built-ins
 
-var crypto = require("crypto");
-var fs = require("fs");
-var path = require("path");
-var url = require("url");
+var crypto = require('crypto');
+var fs = require('fs');
+var path = require('path');
+var url = require('url');
 
 // 3rd-party modules
 
-var AppCache = require("appcache");
+var AppCache = require('appcache');
 
-var browserify = require("browserify");
-var mkdirp = require("mkdirp");
-var request = require("request");
-var temp = require("temp").track();
+var browserify = require('browserify');
+var mkdirp = require('mkdirp');
+var request = require('request');
+var temp = require('temp').track();
 
 // our modules
 
-var FetcherIndex = require("./lib/fetcher-index");
+var FetcherIndex = require('./lib/fetcher-index');
 
-var urlVars = require("./lib/url_variations");
+var urlVars = require('./lib/url_variations');
 
 // this module
 
 /**
  * @constructor
- * @param {Object} opts { remoteUrl: "", localPath: "" }
+ * @param {Object} opts { remoteUrl: '', localPath: '' }
  */
 function Fetcher(opts) {
   this.date = new Date();
   this.remoteUrl = opts.remoteUrl;
   this.localPath = opts.localPath;
-  this.tempPath = "";
+  this.tempPath = '';
   this.index = new FetcherIndex({ remoteUrl: this.remoteUrl });
-  this.manifestUrl = "";
+  this.manifestUrl = '';
 
   this.transforms = {
     css: [],
@@ -45,14 +45,14 @@ function Fetcher(opts) {
     manifestUrl: []
   };
 
-  this.addExtractor("manifestUrl", require("./lib/extractors/manifestUrl.w3c"));
+  this.addExtractor('manifestUrl', require('./lib/extractors/manifestUrl.w3c'));
 
-  this.addTransform("css", require("./lib/transforms/css.localUrls"));
-  this.addTransform("html", require("./lib/transforms/html.removeManifest"));
-  this.addTransform("html", require("./lib/transforms/html.localLinkHrefs"));
-  this.addTransform("html", require("./lib/transforms/html.localScriptSrcs"));
-  this.addTransform("html", require("./lib/transforms/html.injectAppCacheIndex"));
-  this.addTransform("html", require("./lib/transforms/html.injectRequireJsShim"));
+  this.addTransform('css', require('./lib/transforms/css.localUrls'));
+  this.addTransform('html', require('./lib/transforms/html.removeManifest'));
+  this.addTransform('html', require('./lib/transforms/html.localLinkHrefs'));
+  this.addTransform('html', require('./lib/transforms/html.localScriptSrcs'));
+  this.addTransform('html', require('./lib/transforms/html.injectAppCacheIndex'));
+  this.addTransform('html', require('./lib/transforms/html.injectRequireJsShim'));
 }
 
 Fetcher.prototype.addExtractor = function (prop, fn) {
@@ -73,7 +73,7 @@ Fetcher.prototype.afterTempPath = function () {
   var me = this;
 
   return new Promise(function (resolve, reject) {
-    temp.mkdir("appcache-fetcher-" + me.date.valueOf(), function (err, dirPath) {
+    temp.mkdir('appcache-fetcher-' + me.date.valueOf(), function (err, dirPath) {
       if (err) {
         reject(err);
         return;
@@ -100,7 +100,7 @@ Fetcher.prototype.afterLocalPath = function () {
 
 Fetcher.prototype.readFile = function (filePath) {
   return new Promise(function (resolve, reject) {
-    fs.readFile(filePath, { encoding: "utf8" }, function (err, contents) {
+    fs.readFile(filePath, { encoding: 'utf8' }, function (err, contents) {
       if (err) {
         console.error(err);
         reject(err);
@@ -126,19 +126,19 @@ Fetcher.prototype.writeFile = function (filePath, contents) {
 
 Fetcher.prototype.generateAppCacheIndexShim = function () {
   var me = this;
-  var filePath = path.join(this.localPath, "appCacheIndex.js");
+  var filePath = path.join(this.localPath, 'appCacheIndex.js');
 
   return new Promise(function (resolve, reject) {
     var b = browserify({
       paths: [ me.localPath ],
-      standalone: "appCacheIndex"
+      standalone: 'appCacheIndex'
     });
-    b.add(path.join(__dirname, "lib", "app-cache-index.js"));
+    b.add(path.join(__dirname, 'lib', 'app-cache-index.js'));
     b.bundle()
-    .on("end", function () {
+    .on('end', function () {
       resolve();
     })
-    .on("error", function (err) {
+    .on('error', function (err) {
       reject(err);
     })
     .pipe(fs.createWriteStream(filePath));
@@ -146,16 +146,16 @@ Fetcher.prototype.generateAppCacheIndexShim = function () {
 };
 
 Fetcher.prototype.generateRequireShim = function () {
-  var filePath = path.join(this.localPath, "require.load.js");
+  var filePath = path.join(this.localPath, 'require.load.js');
 
   return new Promise(function (resolve, reject) {
     var b = browserify();
-    b.add(path.join(__dirname, "lib", "require.load.js"));
+    b.add(path.join(__dirname, 'lib', 'require.load.js'));
     b.bundle()
-    .on("end", function () {
+    .on('end', function () {
       resolve();
     })
-    .on("error", function (err) {
+    .on('error', function (err) {
       reject(err);
     })
     .pipe(fs.createWriteStream(filePath));
@@ -173,28 +173,28 @@ Fetcher.prototype.download = function (remoteUrl, localPath) {
     }));
   }
 
-  console.log("download:", remoteUrl);
+  console.log('download:', remoteUrl);
 
   filename = me.generateLocalFilePath(remoteUrl);
   filePath = path.join(localPath, filename);
 
   return new Promise(function (resolve, reject) {
     request(remoteUrl)
-    .on("error", function (err) {
+    .on('error', function (err) {
       console.error(err);
       reject(err);
     })
-    .on("response", function (res) {
+    .on('response', function (res) {
       var errorMsg;
       if (res.statusCode !== 200) {
-        errorMsg = remoteUrl + " : " + res.statusCode;
+        errorMsg = remoteUrl + ' : ' + res.statusCode;
         console.error(errorMsg);
         reject(new Error(errorMsg));
         return;
       }
       me.index.set(remoteUrl, filename);
     })
-    .on("end", function () {
+    .on('end', function () {
       resolve();
     })
     .pipe(fs.createWriteStream(filePath));
@@ -205,31 +205,31 @@ Fetcher.prototype.generateLocalFilePath = function (remoteUrl) {
   var parsed;
   var hash;
   if (remoteUrl === this.remoteUrl) {
-    return "index.html";
+    return 'index.html';
   }
   if (remoteUrl === this.manifestUrl) {
-    return "appcache.manifest";
+    return 'appcache.manifest';
   }
   parsed = url.parse(remoteUrl, true, true);
-  hash = crypto.createHash("sha1");
+  hash = crypto.createHash('sha1');
   hash.update(parsed.pathname + parsed.search);
-  return hash.digest("hex") + path.extname(parsed.pathname);
+  return hash.digest('hex') + path.extname(parsed.pathname);
 };
 
 Fetcher.prototype.persistFilesIndex = function () {
   var content = JSON.stringify(this.index, null, 2);
-  var filePath = path.join(this.localPath, "index.json");
+  var filePath = path.join(this.localPath, 'index.json');
 
   return this.writeFile(filePath, content);
 };
 
 Fetcher.prototype.getManifestURL = function () {
   var me = this;
-  var filePath = path.join(this.localPath, "index.html");
+  var filePath = path.join(this.localPath, 'index.html');
   var extractors = this.extractors.manifestUrl;
 
   if (!Array.isArray(extractors) || !extractors.length) {
-    return Promise.reject(new Error("no manifestUrl extractors"));
+    return Promise.reject(new Error('no manifestUrl extractors'));
   }
 
   return me.readFile(filePath)
@@ -247,7 +247,7 @@ Fetcher.prototype.getManifestURL = function () {
         return Promise.resolve(manifestUrl);
       }
     }
-    return Promise.resolve("");
+    return Promise.resolve('');
   });
 };
 
@@ -256,11 +256,11 @@ Fetcher.prototype.downloadAppCacheEntries = function () {
   var appCache;
   var remoteUrls;
 
-  delete require.cache[path.join(me.localPath, "appcache.json")];
-  appCache = require(path.join(me.localPath, "appcache.json"));
+  delete require.cache[path.join(me.localPath, 'appcache.json')];
+  appCache = require(path.join(me.localPath, 'appcache.json'));
 
   remoteUrls = appCache.cache.map(function (entry) {
-    return url.resolve(me.remoteUrl, entry.replace(/^\/\//, "https://"));
+    return url.resolve(me.remoteUrl, entry.replace(/^\/\//, 'https://'));
   });
 
   return this.download(remoteUrls, me.localPath);
@@ -268,12 +268,12 @@ Fetcher.prototype.downloadAppCacheEntries = function () {
 
 Fetcher.prototype.postProcessFile = function (filePath) {
   var me = this;
-  var ext = path.extname(filePath).toLowerCase().replace(".", "");
+  var ext = path.extname(filePath).toLowerCase().replace('.', '');
   var transforms = me.transforms[ext];
   if (!Array.isArray(transforms) || !transforms.length) {
     return Promise.resolve();
   }
-  console.log("postProcessFile:", filePath.replace(process.cwd(), ""));
+  console.log('postProcessFile:', filePath.replace(process.cwd(), ''));
   return this.readFile(filePath)
   .then(function (contents) {
     var transformedContents = contents;
@@ -329,12 +329,12 @@ Fetcher.prototype.go = function () {
     return me.download(me.manifestUrl, me.localPath);
   })
   .then(function () {
-    return me.readFile(path.join(me.localPath, "appcache.manifest"));
+    return me.readFile(path.join(me.localPath, 'appcache.manifest'));
   })
   .then(function (contents) {
     var appCache = AppCache.parse(contents);
     return me.writeFile(
-      path.join(me.localPath, "appcache.json"),
+      path.join(me.localPath, 'appcache.json'),
       JSON.stringify(appCache, null, 2)
     );
   })
