@@ -9,15 +9,15 @@
   "repository": "https://github.com/jokeyrhyme/appcache-fetcher.js",
   "license": "BSD",
   "devDependencies": {
-    "eslint": "^0.18.0",
+    "eslint": "^0.22",
     "istanbul": "^0.3.13",
-    "rimraf": "^2.3.2",
-    "tape": "^4.0.0",
-    "tape-chai": "^1.1.0"
+    "rimraf": "^2.3",
+    "tape": "^4.0",
+    "tape-chai": "^1.1"
   },
   "dependencies": {
-    "appcache": "jokeyrhyme/appcache.js#cebad29",
-    "browserify": "^9.0.8",
+    "@jokeyrhyme/appcache": "^1.0.0",
+    "browserify": "^10.2.4",
     "cheerio": "^0.19.0",
     "cyclonejs": "^1.1.2",
     "lodash.uniq": "^3.1.0",
