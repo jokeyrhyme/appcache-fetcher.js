@@ -1,6 +1,19 @@
 # Changelog
 
 
+## v1.0.2 - 2015-06-10
+
+
+### Changed
+
+- `Promise` returned by `Fetcher#go()` no longer conceals errors
+
+
+### Fixed
+
+- ACF-1: fixed a bad assignment when handling the browserify streams
+
+
 ## v1.0.1 - 2015-06-10
 
 
