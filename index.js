@@ -11,7 +11,6 @@ var url = require('url');
 
 var AppCache = require('@jokeyrhyme/appcache');
 
-var browserify = require('browserify');
 var mkdirp = require('mkdirp');
 var request = require('request');
 var temp = require('temp').track();
@@ -20,6 +19,7 @@ var temp = require('temp').track();
 
 var FetcherIndex = require(path.join(__dirname, 'lib', 'fetcher-index'));
 
+var doBrowserify = require(path.join(__dirname, 'lib', 'do-browserify'));
 var urlVars = require(path.join(__dirname, 'lib', 'url_variations'));
 
 // this module
@@ -125,41 +125,21 @@ Fetcher.prototype.writeFile = function (filePath, contents) {
 };
 
 Fetcher.prototype.generateAppCacheIndexShim = function () {
-  var me = this;
+  var addPath = path.join(__dirname, 'lib', 'app-cache-index.js');
   var filePath = path.join(this.localPath, 'appCacheIndex.js');
+  var options = {
+    paths: [ this.localPath ],
+    standalone: 'appCacheIndex'
+  };
 
-  return new Promise(function (resolve, reject) {
-    var b = browserify({
-      paths: [ me.localPath ],
-      standalone: 'appCacheIndex'
-    });
-    b.add(path.join(__dirname, 'lib', 'app-cache-index.js'));
-    b.bundle()
-    .on('end', function () {
-      resolve();
-    })
-    .on('error', function (err) {
-      reject(err);
-    })
-    .pipe(fs.createWriteStream(filePath));
-  });
+  return doBrowserify(addPath, filePath, options);
 };
 
 Fetcher.prototype.generateRequireShim = function () {
+  var addPath = path.join(__dirname, 'lib', 'require.load.js');
   var filePath = path.join(this.localPath, 'require.load.js');
 
-  return new Promise(function (resolve, reject) {
-    var b = browserify();
-    b.add(path.join(__dirname, 'lib', 'require.load.js'));
-    b.bundle()
-    .on('end', function () {
-      resolve();
-    })
-    .on('error', function (err) {
-      reject(err);
-    })
-    .pipe(fs.createWriteStream(filePath));
-  });
+  return doBrowserify(addPath, filePath, {});
 };
 
 Fetcher.prototype.download = function (remoteUrl, localPath) {
