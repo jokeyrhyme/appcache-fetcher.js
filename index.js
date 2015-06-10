@@ -179,7 +179,9 @@ Fetcher.prototype.download = function (remoteUrl, localPath) {
   filePath = path.join(localPath, filename);
 
   return new Promise(function (resolve, reject) {
-    request(remoteUrl)
+    var reader, writer;
+
+    reader = request(remoteUrl)
     .on('error', function (err) {
       console.error(err);
       reject(err);
@@ -193,11 +195,18 @@ Fetcher.prototype.download = function (remoteUrl, localPath) {
         return;
       }
       me.index.set(remoteUrl, filename);
+    });
+
+    writer = fs.createWriteStream(filePath)
+    .on('error', function (err) {
+      console.error(err);
+      reject(err);
     })
-    .on('end', function () {
+    .on('finish', function () {
       resolve();
-    })
-    .pipe(fs.createWriteStream(filePath));
+    });
+
+    reader.pipe(writer);
   });
 };
 
