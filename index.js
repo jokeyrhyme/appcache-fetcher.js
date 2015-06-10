@@ -344,6 +344,7 @@ Fetcher.prototype.go = function () {
   })
   .then(null, function (err) {
     console.error(err);
+    return Promise.reject(err);
   });
 };
 
