@@ -3,7 +3,7 @@
 // Node.js built-ins
 
 var crypto = require('crypto');
-var fs = require('fs');
+var fs = require('graceful-fs');
 var path = require('path');
 var url = require('url');
 

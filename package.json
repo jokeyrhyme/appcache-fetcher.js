@@ -16,14 +16,15 @@
     "tape-chai": "^1.1"
   },
   "dependencies": {
-    "@jokeyrhyme/appcache": "^1.0.0",
-    "browserify": "^10.2.4",
-    "cheerio": "^0.19.0",
-    "cyclonejs": "^1.1.2",
-    "lodash.uniq": "^3.1.0",
-    "mkdirp": "^0.5.0",
-    "request": "^2.55.0",
-    "temp": "^0.8.1"
+    "@jokeyrhyme/appcache": "1.0.0",
+    "browserify": "10.2.4",
+    "cheerio": "0.19.0",
+    "cyclonejs": "1.1.2",
+    "graceful-fs": "3.0.8",
+    "lodash.uniq": "3.2.1",
+    "mkdirp": "0.5.1",
+    "request": "2.57.0",
+    "temp": "0.8.3"
   },
   "files": [
     "index.js",
