@@ -31,7 +31,7 @@ var urlVars = require(path.join(__dirname, 'www', 'url_variations'));
 function Fetcher (opts) {
   this.date = new Date();
   this.remoteUrl = opts.remoteUrl;
-  this.localPath = opts.localPath;
+  this.localPath = path.resolve(opts.localPath);
   this.tempPath = '';
   this.index = new FetcherIndex({ remoteUrl: this.remoteUrl });
   this.manifestUrl = '';

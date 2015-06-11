@@ -23,7 +23,9 @@ var common = require(path.join(__dirname, 'lib', 'common'));
 
 var remoteUrl = 'http://everytimezone.com/';
 
-var outputPath = path.join(__dirname, '..', 'output');
+// use a relative output path here to cover this case
+var relativeOutputPath = path.join('..', 'output');
+var outputPath = path.resolve(relativeOutputPath);
 
 test('new Fetcher({ remoteUrl: "' + remoteUrl + '" })', function (t) {
   var fetcher;
@@ -34,7 +36,7 @@ test('new Fetcher({ remoteUrl: "' + remoteUrl + '" })', function (t) {
     tt.doesNotThrow(function () {
       fetcher = new Fetcher({
         remoteUrl: remoteUrl,
-        localPath: outputPath
+        localPath: relativeOutputPath
       });
     });
     tt.ok(fetcher);

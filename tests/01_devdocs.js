@@ -23,6 +23,7 @@ var common = require(path.join(__dirname, 'lib', 'common'));
 
 var remoteUrl = 'http://devdocs.io/';
 
+// use an absolute output path here (e.g. __dirname) to cover this case
 var outputPath = path.join(__dirname, '..', 'output');
 
 test('new Fetcher({ remoteUrl: "' + remoteUrl + '" })', function (t) {
