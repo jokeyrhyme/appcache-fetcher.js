@@ -18,6 +18,9 @@ var Fetcher = require('..');
 
 require('tape-chai');
 
+// change the working directory to support running from any location
+process.chdir(path.join(__dirname));
+
 test('Fetcher', function (t) {
   t.isFunction(Fetcher);
   t.end();

@@ -23,7 +23,7 @@ var common = require(path.join(__dirname, 'lib', 'common'));
 
 var remoteUrl = 'http://devdocs.io/';
 
-var outputPath = path.join(process.cwd(), 'output');
+var outputPath = path.join(__dirname, '..', 'output');
 
 test('new Fetcher({ remoteUrl: "' + remoteUrl + '" })', function (t) {
   var fetcher;
