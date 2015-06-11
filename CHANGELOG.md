@@ -1,6 +1,16 @@
 # Changelog
 
 
+## v1.0.3 - 2015-06-11
+
+
+### Fixed
+
+- [resolve relative output paths](#2)
+
+- [fix issues when current working directory is not the project root](#3)
+
+
 ## v1.0.2 - 2015-06-10
 
 
