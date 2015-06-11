@@ -31,6 +31,7 @@
     "index.js",
     "LICENSE",
     "README.md",
-    "lib"
+    "lib",
+    "www"
   ]
 }
