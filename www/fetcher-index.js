@@ -2,12 +2,11 @@
 
 // Node.js built-ins
 
-var path = require('path');
 var url = require('url');
 
 // our modules
 
-var urlVars = require(path.join(__dirname, 'url_variations'));
+var urlVars = require('./url_variations');
 
 // this module
 

@@ -2,45 +2,41 @@
 
 'use strict';
 
-// Node.js built-ins
-
-var path = require('path');
-
 // our modules
 
-var FetcherIndex = require(path.join(__dirname, 'fetcher-index'));
+var FetcherIndex = require('./fetcher-index');
 
 // this module
 
-var appCacheIndex = process.browser ? window.appCacheIndex : {};
+var appCacheIndex = global.appCacheIndex || {};
 
 var fetcherIndex = new FetcherIndex({ index: appCacheIndex });
 
-var isAMD = typeof window.define === 'function' && typeof window.define.amd !== 'undefined';
+var isAMD = typeof global.define === 'function' && typeof global.define.amd !== 'undefined';
 
-var isRequireJS = isAMD && typeof window.require === 'function' && typeof window.require.load === 'function';
+var isRequireJS = isAMD && typeof global.require === 'function' && typeof global.require.load === 'function';
 
 (function () {
   var oldLoad;
 
   if (isRequireJS) {
-    oldLoad = window.require.load;
+    oldLoad = global.require.load;
 
-    window.require.load = function (context, moduleId, moduleUrl) {
+    global.require.load = function (context, moduleId, moduleUrl) {
       var localUrl = fetcherIndex.resolveLocalUrl(moduleUrl);
-      oldLoad.call(window.require, context, moduleId, localUrl);
+      oldLoad.call(global.require, context, moduleId, localUrl);
     };
   }
 }());
 
 (function (fn) {
   if (isAMD) {
-    window.require(['jquery'], fn);
+    global.require(['jquery'], fn);
   } else {
-    fn(window.$);
+    fn(global.$);
   }
 }(function ($) {
 
-  require(path.join(__dirname, 'shims', 'jquery.ajax'))(fetcherIndex, $, 'ajax');
+  require('./shims/jquery.ajax')(fetcherIndex, $, 'ajax');
 
 }));

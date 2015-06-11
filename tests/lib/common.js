@@ -69,6 +69,41 @@ module.exports = {
     };
   },
 
+  makeJavaScriptTests: function (outputPath) {
+    return function (t) {
+      t.test('appCacheIndex.js exists', function (tt) {
+        tt.ok(fs.existsSync(path.join(outputPath, 'appCacheIndex.js')));
+        tt.end();
+      });
+
+      // __dirname is a symptom of weird module paths that break in the app
+      t.test('appCacheIndex.js does not contain "__dirname"', function (tt) {
+        var contents = fs.readFileSync(
+          path.join(outputPath, 'appCacheIndex.js'),
+          { encoding: 'utf8' }
+        );
+        tt.notInclude(contents, '__dirname');
+        tt.end();
+      });
+
+      t.test('require.load.js exists', function (tt) {
+        tt.ok(fs.existsSync(path.join(outputPath, 'require.load.js')));
+        tt.end();
+      });
+
+      // __dirname is a symptom of weird module paths that break in the app
+      t.test('require.load.js does not contain "__dirname"', function (tt) {
+        var contents = fs.readFileSync(
+          path.join(outputPath, 'require.load.js'),
+          { encoding: 'utf8' }
+        );
+        tt.notInclude(contents, '__dirname');
+        tt.end();
+      });
+
+      t.end();
+    };
+  },
   makeIndexJSONTests: function (outputPath, remoteUrl) {
     return function (tt) {
       var index;
