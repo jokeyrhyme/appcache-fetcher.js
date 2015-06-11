@@ -17,10 +17,10 @@ var temp = require('temp').track();
 
 // our modules
 
-var FetcherIndex = require(path.join(__dirname, 'lib', 'fetcher-index'));
+var FetcherIndex = require(path.join(__dirname, 'www', 'fetcher-index'));
 
 var doBrowserify = require(path.join(__dirname, 'lib', 'do-browserify'));
-var urlVars = require(path.join(__dirname, 'lib', 'url_variations'));
+var urlVars = require(path.join(__dirname, 'www', 'url_variations'));
 
 // this module
 
@@ -125,7 +125,7 @@ Fetcher.prototype.writeFile = function (filePath, contents) {
 };
 
 Fetcher.prototype.generateAppCacheIndexShim = function () {
-  var addPath = path.join(__dirname, 'lib', 'app-cache-index.js');
+  var addPath = path.join(__dirname, 'www', 'app-cache-index.js');
   var filePath = path.join(this.localPath, 'appCacheIndex.js');
   var options = {
     paths: [ this.localPath ],
@@ -136,7 +136,7 @@ Fetcher.prototype.generateAppCacheIndexShim = function () {
 };
 
 Fetcher.prototype.generateRequireShim = function () {
-  var addPath = path.join(__dirname, 'lib', 'require.load.js');
+  var addPath = path.join(__dirname, 'www', 'require.load.js');
   var filePath = path.join(this.localPath, 'require.load.js');
 
   return doBrowserify(addPath, filePath, {});
