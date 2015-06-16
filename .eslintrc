@@ -1,4 +1,5 @@
 {
+  "extends": "semistandard",
   "env": {
     "amd": true,
     "browser": false,
@@ -8,7 +9,6 @@
   "globals": {
     "Promise": false
   },
-  "extends": "standard",
   "rules": {
     /* Possible Errors */
     "no-extra-parens": 2,
@@ -34,10 +34,6 @@
     "no-catch-shadow": 2,
     "no-undefined": 2,
     /* Node.JS */
-    "no-sync": 2,
-    /* Semi-Standard */
-    "semi": [2, "always"],
-    "no-extra-semi": 2,
-    "semi-spacing": [2, { "before": false, "after": true }]
+    "no-sync": 2
   }
 }
