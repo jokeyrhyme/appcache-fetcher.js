@@ -1,4 +1,4 @@
-/*eslint-env browser, node*/
+/* eslint-env browser, node */
 
 'use strict';
 
