@@ -27,7 +27,7 @@ test('requirejsSrc', function (t) {
   });
 
   t.test('html with Require.js', function (tt) {
-    var html = '<html><script src="//cdn/require.min.js"><script src="blah.js"></script></html>';
+    var html = '<html><script src="//cdn/require.min.js"></script><script src="blah.js"></script></html>';
 
     var srcs = requirejsSrc({ contents: html });
     tt.isArray(srcs);
