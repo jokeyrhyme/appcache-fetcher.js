@@ -1,6 +1,24 @@
 # Changelog
 
 
+## v1.1.0 - 2015-07-02
+
+
+### Added
+
+- when replacing the `[src]` attribute of a `<script>` tag, keep the old value
+  in `[data-appcache-src]`
+
+- when replacing the `[href]` attribute of a `<link>` tag, keep the old value in
+  `[data-appcache-href]`
+
+
+## Changed
+
+- inject the Require.js shim after the Require.js `<script>` tag if any,
+  otherwise after the last `<script>` tag if any, otherwise append to `<body>`
+
+
 ## v1.0.3 - 2015-06-11
 
 
