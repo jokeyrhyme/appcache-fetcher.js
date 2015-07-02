@@ -46,6 +46,7 @@ function Fetcher (opts) {
   };
 
   this.addExtractor('manifestUrl', require(path.join(__dirname, 'lib', 'extractors', 'manifestUrl.w3c')));
+  this.addExtractor('requirejsSrc', require(path.join(__dirname, 'lib', 'extractors', 'manifestUrl.w3c')));
 
   this.addTransform('css', require(path.join(__dirname, 'lib', 'transforms', 'css.localUrls')));
   this.addTransform('html', require(path.join(__dirname, 'lib', 'transforms', 'html.removeManifest')));

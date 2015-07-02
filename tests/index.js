@@ -94,8 +94,8 @@ test('Fetcher.getURLVariations()', function (t) {
   t.end();
 });
 
+require(path.join(__dirname, '00_extractors'));
 require(path.join(__dirname, '00_shim_jquery_ajax'));
-
 require(path.join(__dirname, '00_utils'));
 
 require(path.join(__dirname, '01_everytimezone'));
