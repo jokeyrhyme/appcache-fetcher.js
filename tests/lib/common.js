@@ -9,6 +9,8 @@ var path = require('path');
 
 // this module
 
+var NEW_JS = ['appCacheIndex.js', 'require.load.js'];
+
 module.exports = {
 
   makeAppCacheTests: function (outputPath) {
@@ -123,6 +125,7 @@ module.exports = {
       var el$ = $(this);
       var href = el$.attr('href');
       if (href) {
+        tt.ok(el$.attr('data-appcache-key'), $.html(el$));
         tt.notEqual(href.indexOf('//'), 0, 'link[href]: ' + href);
         tt.notEqual(href.indexOf('http://'), 0, 'link[href]: ' + href);
         tt.notEqual(href.indexOf('https://'), 0, 'link[href]: ' + href);
@@ -134,7 +137,8 @@ module.exports = {
     $('script[src]').each(function () {
       var el$ = $(this);
       var href = el$.attr('src');
-      if (href) {
+      if (href && NEW_JS.indexOf(href) === -1) {
+        tt.ok(el$.attr('data-appcache-key'), $.html(el$));
         tt.notEqual(href.indexOf('//'), 0, 'script[src]: ' + href);
         tt.notEqual(href.indexOf('http://'), 0, 'script[src]: ' + href);
         tt.notEqual(href.indexOf('https://'), 0, 'script[src]: ' + href);
