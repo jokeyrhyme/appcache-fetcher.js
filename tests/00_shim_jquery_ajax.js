@@ -12,7 +12,7 @@ var test = require('tape');
 
 var FetcherIndex = require(path.join(__dirname, '..', 'www', 'fetcher-index'));
 
-// this modules
+// this module
 
 test('shim: jQuery.ajax', function (t) {
   var $ = {};
