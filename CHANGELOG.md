@@ -1,6 +1,15 @@
 # Changelog
 
 
+## v1.2.0 - 2015-08-12
+
+
+### Added
+
+- ACF-2: the injected jQuery shim now duck-punches `$.fn.html()` so that new DOM
+  content has `<img />` elements with offline URLs where possible
+
+
 ## v1.1.0 - 2015-07-02
 
 
