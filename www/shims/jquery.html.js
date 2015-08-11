@@ -28,7 +28,6 @@ module.exports = function (index, context, method) {
   };
 
   context[method] = function (htmlString) {
-    var args;
     if (!arguments.length) {
       return oldMethod.call(this);
     }

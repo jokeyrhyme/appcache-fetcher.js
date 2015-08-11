@@ -55,7 +55,6 @@ module.exports = {
               if (cssUrl.indexOf('data:') === 0) {
                 return; // don't bother with Data URIs
               }
-              console.log(cssUrl);
               ttt.notEqual(cssUrl.indexOf('//'), 0, cssUrl + ' not protocol-relative');
               ttt.notEqual(cssUrl.indexOf('http://'), 0, cssUrl + ' not remote HTTP');
               ttt.notEqual(cssUrl.indexOf('https://'), 0, cssUrl + ' not remote HTTPS');
