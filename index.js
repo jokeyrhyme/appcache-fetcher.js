@@ -243,6 +243,24 @@ Fetcher.prototype.getManifestURL = function () {
   });
 };
 
+Fetcher.prototype.saveAppCacheAsJSON = function (input) {
+  var promise;
+
+  if (input) {
+    promise = Promise.resolve(input);
+  } else {
+    promise = this.readFile(path.join(this.localPath, 'appcache.manifest'));
+  }
+
+  return promise.then(function (contents) {
+    var appCache = AppCache.parse(contents);
+    return this.writeFile(
+      path.join(this.localPath, 'appcache.json'),
+      JSON.stringify(appCache, null, 2)
+    );
+  }.bind(this));
+};
+
 Fetcher.prototype.downloadAppCacheEntries = function () {
   var me = this;
   var appCache;
@@ -321,14 +339,7 @@ Fetcher.prototype.go = function () {
     return me.download(me.manifestUrl, me.localPath);
   })
   .then(function () {
-    return me.readFile(path.join(me.localPath, 'appcache.manifest'));
-  })
-  .then(function (contents) {
-    var appCache = AppCache.parse(contents);
-    return me.writeFile(
-      path.join(me.localPath, 'appcache.json'),
-      JSON.stringify(appCache, null, 2)
-    );
+    return me.saveAppCacheAsJSON();
   })
   .then(function () {
     return me.downloadAppCacheEntries();
