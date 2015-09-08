@@ -23,6 +23,7 @@ var FetcherIndex = require(path.join(__dirname, 'www', 'fetcher-index'));
 
 var doBrowserify = require(path.join(__dirname, 'lib', 'do-browserify'));
 var urlVars = require(path.join(__dirname, 'www', 'url_variations'));
+var utils = require(path.join(__dirname, 'lib', 'utils'));
 
 // this module
 
@@ -254,6 +255,7 @@ Fetcher.prototype.saveAppCacheAsJSON = function (input) {
 
   return promise.then(function (contents) {
     var appCache = AppCache.parse(contents);
+    appCache.cache = appCache.cache.filter(utils.filterUnfetchables);
     return this.writeFile(
       path.join(this.localPath, 'appcache.json'),
       JSON.stringify(appCache, null, 2)

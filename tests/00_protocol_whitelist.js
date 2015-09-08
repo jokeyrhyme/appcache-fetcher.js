@@ -42,7 +42,12 @@ test('protocol whitelist', function (t) {
   });
 
   t.test('parsed JSON has expected content', function (tt) {
-    tt.lengthOf(parsed.cache, 4, 'all 4 CACHE entries found');
+    tt.lengthOf(parsed.cache, 3, 'all 3 CACHE entries found');
+    tt.sameMembers(parsed.cache, [
+      'http://google.com/',
+      'https://github.com/',
+      'image.jpeg'
+    ]);
     tt.lengthOf(parsed.fallback, 0, 'no FALLBACK entries');
     tt.lengthOf(parsed.network, 0, 'no NETWORK entries');
     tt.end();
