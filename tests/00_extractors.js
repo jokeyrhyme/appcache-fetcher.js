@@ -15,7 +15,6 @@ var requirejsSrc = require(path.join(__dirname, '..', 'lib', 'extractors', 'requ
 // this module
 
 test('requirejsSrc', function (t) {
-
   t.test('html with no Require.js', function (tt) {
     var html = '<html><script src="blah.js"></script></html>';
 

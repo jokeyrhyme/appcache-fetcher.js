@@ -74,5 +74,4 @@ test('new Fetcher({ remoteUrl: "' + remoteUrl + '" })', function (t) {
   t.test('AppCache', common.makeAppCacheTests(outputPath));
 
   t.test('*.js', common.makeJavaScriptTests(outputPath));
-
 });

@@ -27,7 +27,6 @@ test('Fetcher', function (t) {
 });
 
 test('Fetcher.getURLVariations()', function (t) {
-
   t.test('https://domain.com/example', function (tt) {
     var variations = Fetcher.getURLVariationsOnScheme('https://domain.com/example');
     tt.deepEqual(variations, [

@@ -36,8 +36,6 @@ var isRequireJS = isAMD && typeof global.require === 'function' && typeof global
     fn(global.$);
   }
 }(function ($) {
-
   require('./shims/jquery.ajax')(fetcherIndex, $, 'ajax');
   require('./shims/jquery.html')(fetcherIndex, $.fn, 'html');
-
 }));

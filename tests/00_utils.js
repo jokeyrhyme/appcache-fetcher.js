@@ -15,7 +15,6 @@ var utils = require(path.join(__dirname, '..', 'lib', 'utils'));
 // this module
 
 test('utils', function (t) {
-
   t.test('stripGZ', function (tt) {
     var fn = utils.stripGZ;
     tt.equal(fn('//cdn/path/file.js'), '//cdn/path/file.js');

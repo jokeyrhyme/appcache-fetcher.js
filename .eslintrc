@@ -1,32 +1,17 @@
 {
-  "extends": ["eslint:recommended", "semistandard"],
+  "extends": ["@jokeyrhyme/es5"],
   "env": {
     "amd": true,
     "browser": false,
     "mocha": false,
     "node": true
   },
-  "globals": {
-    "Promise": false
-  },
   "rules": {
     /* Possible Errors */
-    "no-extra-parens": 2,
     "valid-jsdoc": 2,
     /* Best Practices */
-    "block-scoped-var": 2,
-    "complexity": [1, 3],
-    "default-case": 2,
-    "guard-for-in": 2,
-    "no-div-regex": 2,
-    "no-else-return": 2,
-    "no-eq-null": 2,
-    "no-process-env": 2,
-    "no-void": 2,
-    "no-warning-comments": 2,
-    "vars-on-top": 2,
-    /* Variables */
-    "no-undefined": 2,
+    "no-invalid-this": 0, /* TODO: 2 */
+    "no-param-reassign": 0, /* TODO: 2 */
     /* Node.JS */
     "no-sync": 2
   }

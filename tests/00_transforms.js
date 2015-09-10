@@ -15,7 +15,6 @@ var injectRequireJsShim = require(path.join(__dirname, '..', 'lib', 'transforms'
 // this module
 
 test('injectRequireJsShim', function (t) {
-
   t.test('html with no Require.js', function (tt) {
     var html = '<html><script src="blah.js"></script></html>';
     var out = injectRequireJsShim({ contents: html, filePath: 'index.html' });

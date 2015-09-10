@@ -9,6 +9,7 @@
   "repository": "https://github.com/jokeyrhyme/appcache-fetcher.js",
   "license": "BSD-2-Clause",
   "devDependencies": {
+    "@jokeyrhyme/eslint-config-es5": "^1.0",
     "eslint": "^1.3",
     "eslint-config-semistandard": "^5.0",
     "eslint-config-standard": "^4.0",

@@ -35,5 +35,4 @@ module.exports = function (index, context, method) {
   };
 
   return context[method];
-
 };
