@@ -1,6 +1,6 @@
 {
   "name": "@jokeyrhyme/appcache-fetcher",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "store an AppCache-enabled site on disk for local use",
   "main": "index.js",
   "scripts": {

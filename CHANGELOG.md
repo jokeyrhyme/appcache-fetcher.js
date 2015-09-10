@@ -1,6 +1,16 @@
 # Changelog
 
 
+## v1.2.1 - 2015-09-10
+
+
+### Fixed
+
+- [ACF-3](#6): download HTTP and HTTPS resources, nothing else
+
+    - skip non-HTTP(S) protocols when parsing the AppCache manifest
+
+
 ## v1.2.0 - 2015-08-12
 
 
