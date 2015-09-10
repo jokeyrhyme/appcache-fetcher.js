@@ -23,6 +23,8 @@ var FetcherIndex = require(path.join(__dirname, 'www', 'fetcher-index'));
 
 var doBrowserify = require(path.join(__dirname, 'lib', 'do-browserify'));
 var urlVars = require(path.join(__dirname, 'www', 'url_variations'));
+var utils = require(path.join(__dirname, 'lib', 'utils'));
+var values = require(path.join(__dirname, 'lib', 'values'));
 
 // this module
 
@@ -149,6 +151,7 @@ Fetcher.prototype.download = function (remoteUrl, localPath) {
   var me = this;
   var filePath;
   var filename;
+  var parsedRemoteUrl;
 
   if (Array.isArray(remoteUrl)) {
     return Promise.all(remoteUrl.map(function (r) {
@@ -157,6 +160,11 @@ Fetcher.prototype.download = function (remoteUrl, localPath) {
   }
 
   console.log('download:', remoteUrl);
+
+  parsedRemoteUrl = url.parse(remoteUrl, true, true);
+  if (values.FETCH_PROTOCOLS.indexOf(parsedRemoteUrl.protocol) === -1) {
+    return Promise.reject(new Error('cannot download ' + remoteUrl));
+  }
 
   filename = me.generateLocalFilePath(remoteUrl);
   filePath = path.join(localPath, filename);
@@ -243,6 +251,25 @@ Fetcher.prototype.getManifestURL = function () {
   });
 };
 
+Fetcher.prototype.saveAppCacheAsJSON = function (input) {
+  var promise;
+
+  if (input) {
+    promise = Promise.resolve(input);
+  } else {
+    promise = this.readFile(path.join(this.localPath, 'appcache.manifest'));
+  }
+
+  return promise.then(function (contents) {
+    var appCache = AppCache.parse(contents);
+    appCache.cache = appCache.cache.filter(utils.filterUnfetchables);
+    return this.writeFile(
+      path.join(this.localPath, 'appcache.json'),
+      JSON.stringify(appCache, null, 2)
+    );
+  }.bind(this));
+};
+
 Fetcher.prototype.downloadAppCacheEntries = function () {
   var me = this;
   var appCache;
@@ -321,14 +348,7 @@ Fetcher.prototype.go = function () {
     return me.download(me.manifestUrl, me.localPath);
   })
   .then(function () {
-    return me.readFile(path.join(me.localPath, 'appcache.manifest'));
-  })
-  .then(function (contents) {
-    var appCache = AppCache.parse(contents);
-    return me.writeFile(
-      path.join(me.localPath, 'appcache.json'),
-      JSON.stringify(appCache, null, 2)
-    );
+    return me.saveAppCacheAsJSON();
   })
   .then(function () {
     return me.downloadAppCacheEntries();
