@@ -1,24 +1,7 @@
 {
   "name": "@jokeyrhyme/appcache-fetcher",
-  "version": "1.2.1",
   "description": "store an AppCache-enabled site on disk for local use",
-  "main": "index.js",
-  "scripts": {
-    "test": "eslint . && istanbul cover tests/"
-  },
-  "repository": "https://github.com/jokeyrhyme/appcache-fetcher.js",
-  "license": "BSD-2-Clause",
-  "devDependencies": {
-    "@jokeyrhyme/eslint-config-es5": "^1.0",
-    "eslint": "^1.9",
-    "eslint-config-semistandard": "^5.0",
-    "eslint-config-standard": "^4.4",
-    "eslint-plugin-standard": "^1.2",
-    "istanbul": "^0.4.0",
-    "rimraf": "^2.3",
-    "tape": "^4.2",
-    "tape-chai": "^1.1"
-  },
+  "version": "1.2.1",
   "dependencies": {
     "@jokeyrhyme/appcache": "1.0.0",
     "browserify": "11.0.1",
@@ -30,6 +13,21 @@
     "request": "2.61.0",
     "temp": "0.8.3"
   },
+  "devDependencies": {
+    "@jokeyrhyme/eslint-config-es5": "^1.0",
+    "ava": "0.5.0",
+    "eslint": "^1.9",
+    "eslint-config-semistandard": "^5.0",
+    "eslint-config-standard": "^4.4",
+    "eslint-plugin-standard": "^1.2",
+    "fixpack": "2.2.0",
+    "nyc": "3.2.2",
+    "rimraf": "^2.3"
+  },
+  "engines": {
+    "node": ">=0.12",
+    "npm": ">=3.0"
+  },
   "files": [
     "index.js",
     "LICENSE",
@@ -37,8 +35,14 @@
     "lib",
     "www"
   ],
-  "engines": {
-    "node": ">=0.12",
-    "npm": ">=3.0"
+  "license": "BSD-2-Clause",
+  "main": "index.js",
+  "repository": "https://github.com/jokeyrhyme/appcache-fetcher.js",
+  "scripts": {
+    "eslint": "eslint --fix .",
+    "fixpack": "fixpack",
+    "nyc": "nyc check-coverage -f 90 -l 90 -s 90",
+    "posttest": "npm run nyc && npm run eslint && npm run fixpack",
+    "test": "nyc ava tests/*.js"
   }
 }
