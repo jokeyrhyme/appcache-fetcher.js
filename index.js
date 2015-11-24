@@ -12,7 +12,7 @@ var url = require('url');
 // 3rd-party modules
 
 var AppCache = require('@jokeyrhyme/appcache');
-
+var chalk = require('chalk');
 var mkdirp = require('mkdirp');
 var request = require('request');
 var temp = require('temp').track();
@@ -27,6 +27,10 @@ var utils = require(path.join(__dirname, 'lib', 'utils'));
 var values = require(path.join(__dirname, 'lib', 'values'));
 
 // this module
+
+function logError (msg) {
+  console.error(chalk.red(msg));
+}
 
 /**
  * @constructor
@@ -108,7 +112,7 @@ Fetcher.prototype.readFile = function (filePath) {
   return new Promise(function (resolve, reject) {
     fs.readFile(filePath, { encoding: 'utf8' }, function (err, contents) {
       if (err) {
-        console.error(err);
+        logError(err);
         reject(err);
         return;
       }
@@ -121,7 +125,7 @@ Fetcher.prototype.writeFile = function (filePath, contents) {
   return new Promise(function (resolve, reject) {
     fs.writeFile(filePath, contents, function (err) {
       if (err) {
-        console.error(err);
+        logError(err);
         reject(err);
         return;
       }
@@ -175,14 +179,14 @@ Fetcher.prototype.download = function (remoteUrl, localPath) {
 
     reader = request(remoteUrl)
     .on('error', function (err) {
-      console.error(err);
+      logError(err);
       reject(err);
     })
     .on('response', function (res) {
       var errorMsg;
       if (res.statusCode !== 200) {
         errorMsg = remoteUrl + ' : ' + res.statusCode;
-        console.error(errorMsg);
+        logError(errorMsg);
         reject(new Error(errorMsg));
         return;
       }
@@ -191,7 +195,7 @@ Fetcher.prototype.download = function (remoteUrl, localPath) {
 
     writer = fs.createWriteStream(filePath)
     .on('error', function (err) {
-      console.error(err);
+      logError(err);
       reject(err);
     })
     .on('finish', function () {
@@ -328,7 +332,7 @@ Fetcher.prototype.postProcessDownloads = function () {
   return new Promise(function (resolve, reject) {
     fs.readdir(me.localPath, function (err, files) {
       if (err) {
-        console.error(err);
+        logError(err);
         reject(err);
         return;
       }
@@ -375,7 +379,7 @@ Fetcher.prototype.go = function () {
     ]);
   })
   .then(null, function (err) {
-    console.error(err);
+    logError(err);
     return Promise.reject(err);
   });
 };
