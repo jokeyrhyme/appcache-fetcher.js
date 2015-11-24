@@ -39,6 +39,7 @@ function Fetcher (opts) {
   this.tempPath = '';
   this.index = new FetcherIndex({ remoteUrl: this.remoteUrl });
   this.manifestUrl = '';
+  this.strictMode = typeof opts.strictMode === 'boolean' ? opts.strictMode : true;
 
   this.transforms = {
     css: [],
@@ -281,6 +282,10 @@ Fetcher.prototype.downloadAppCacheEntries = function () {
   remoteUrls = appCache.cache.map(function (entry) {
     return url.resolve(me.remoteUrl, entry.replace(/^\/\//, 'https://'));
   });
+
+  if (this.strictMode) {
+    return this.download(remoteUrls, me.localPath);
+  }
 
   return this.download(remoteUrls, me.localPath)
   .catch(function () {
