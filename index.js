@@ -282,7 +282,11 @@ Fetcher.prototype.downloadAppCacheEntries = function () {
     return url.resolve(me.remoteUrl, entry.replace(/^\/\//, 'https://'));
   });
 
-  return this.download(remoteUrls, me.localPath);
+  return this.download(remoteUrls, me.localPath)
+  .catch(function () {
+    // ignore download errors here
+    return Promise.resolve();
+  });
 };
 
 Fetcher.prototype.postProcessFile = function (filePath) {

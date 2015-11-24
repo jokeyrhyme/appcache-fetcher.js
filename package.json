@@ -21,6 +21,7 @@
     "eslint-config-standard": "^4.4",
     "eslint-plugin-standard": "^1.2",
     "fixpack": "2.2.0",
+    "mockery": "1.4.0",
     "nyc": "3.2.2",
     "rimraf": "^2.3"
   },
