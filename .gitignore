@@ -2,6 +2,7 @@
 node_modules
 
 # output files
+.nyc_output
 coverage
 output
 tests/browser.bundle.js
