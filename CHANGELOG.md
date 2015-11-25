@@ -1,6 +1,17 @@
 # Changelog
 
 
+## v1.3.0 - 2015-11-25
+
+
+### Added
+
+
+- [ACF-7](#9): added option to disable strict mode
+
+    - without strict mode, consider failed resource fetches as non-fatal
+
+
 ## v1.2.1 - 2015-09-10
 
 
