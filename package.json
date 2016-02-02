@@ -22,8 +22,10 @@
     "eslint-config-semistandard": "^5.0",
     "eslint-config-standard": "^4.4",
     "eslint-plugin-standard": "^1.2",
-    "fixpack": "2.2.0",
-    "mockery": "1.4.0",
+    "fixpack": "^2.2.0",
+    "hapi": "^12.1.0",
+    "inert": "^3.2.0",
+    "mockery": "^1.4.0",
     "nyc": "^5.5.0",
     "rimraf": "^2.3"
   },
