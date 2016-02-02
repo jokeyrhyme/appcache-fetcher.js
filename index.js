@@ -14,6 +14,7 @@ var url = require('url');
 var AppCache = require('@jokeyrhyme/appcache');
 var chalk = require('chalk');
 var mkdirp = require('mkdirp');
+var pify = require('pify');
 var request = require('request');
 var temp = require('temp').track();
 
@@ -27,6 +28,9 @@ var utils = require(path.join(__dirname, 'lib', 'utils'));
 var values = require(path.join(__dirname, 'lib', 'values'));
 
 // this module
+
+var fsp = pify(fs);
+var mkdirpp = pify(mkdirp);
 
 function logError (msg) {
   console.error(chalk.red(msg));
@@ -97,41 +101,26 @@ Fetcher.prototype.afterTempPath = function () {
 Fetcher.prototype.afterLocalPath = function () {
   var me = this;
 
-  return new Promise(function (resolve, reject) {
-    mkdirp(me.localPath, function (err) {
-      if (err) {
-        reject(err);
-        return;
-      }
-      resolve(me.localPath);
+  return mkdirpp(me.localPath)
+    .then(function () {
+      return me.localPath;
     });
-  });
 };
 
 Fetcher.prototype.readFile = function (filePath) {
-  return new Promise(function (resolve, reject) {
-    fs.readFile(filePath, { encoding: 'utf8' }, function (err, contents) {
-      if (err) {
-        logError(err);
-        reject(err);
-        return;
-      }
-      resolve(contents);
+  return fsp.readFile(filePath, { encoding: 'utf8' })
+    .catch(function (err) {
+      logError(err);
+      throw err;
     });
-  });
 };
 
 Fetcher.prototype.writeFile = function (filePath, contents) {
-  return new Promise(function (resolve, reject) {
-    fs.writeFile(filePath, contents, function (err) {
-      if (err) {
-        logError(err);
-        reject(err);
-        return;
-      }
-      resolve();
+  return fsp.writeFile(filePath, contents)
+    .catch(function (err) {
+      logError(err);
+      throw err;
     });
-  });
 };
 
 Fetcher.prototype.generateAppCacheIndexShim = function () {
@@ -249,10 +238,10 @@ Fetcher.prototype.getManifestURL = function () {
         remoteUrl: me.remoteUrl
       });
       if (manifestUrl) {
-        return Promise.resolve(manifestUrl);
+        return manifestUrl;
       }
     }
-    return Promise.resolve('');
+    return '';
   });
 };
 
@@ -319,7 +308,7 @@ Fetcher.prototype.postProcessFile = function (filePath) {
         index: me.index
       });
     }
-    return Promise.resolve(transformedContents);
+    return transformedContents;
   })
   .then(function (contents) {
     return me.writeFile(filePath, contents);
@@ -329,18 +318,16 @@ Fetcher.prototype.postProcessFile = function (filePath) {
 Fetcher.prototype.postProcessDownloads = function () {
   var me = this;
 
-  return new Promise(function (resolve, reject) {
-    fs.readdir(me.localPath, function (err, files) {
-      if (err) {
-        logError(err);
-        reject(err);
-        return;
-      }
-      Promise.all(files.map(function (file) {
+  return fsp.readdir(me.localPath)
+    .catch(function (err) {
+      logError(err);
+      throw err;
+    })
+    .then(function (files) {
+      return Promise.all(files.map(function (file) {
         return me.postProcessFile(path.join(me.localPath, file));
-      })).then(resolve, reject);
+      }));
     });
-  });
 };
 
 Fetcher.prototype.go = function () {
@@ -380,7 +367,7 @@ Fetcher.prototype.go = function () {
   })
   .then(null, function (err) {
     logError(err);
-    return Promise.reject(err);
+    throw err;
   });
 };
 
