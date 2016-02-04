@@ -69,8 +69,8 @@ test.serial('index.json populated correctly', function (t) {
         return url.resolve(REMOTE_URL, resource);
       }).forEach(function (resource) {
         t.ok(~remoteUrls.indexOf(resource));
-      })
-    })
+      });
+    });
 });
 
 test.serial('index.html downloaded and processed', function (t) {
@@ -91,7 +91,7 @@ test.serial('index.html downloaded and processed', function (t) {
       AVAILABLE_RESOURCES.forEach(function (resource) {
         t.notOk(~stored.indexOf(' src="' + resource + '"'));
         t.ok(~stored.indexOf(' data-appcache-src="' + resource + '"'));
-      })
+      });
 
       t.ok(/\ssrc="[^"]+missing\.js"/.test(stored));
     });
