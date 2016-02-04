@@ -141,6 +141,15 @@ Fetcher.prototype.generateRequireShim = function () {
   return doBrowserify(addPath, filePath, {});
 };
 
+function rejectIfStrict (me, err, resolve, reject) {
+  logError(err);
+  if (me.strictMode) {
+    reject(err);
+    return;
+  }
+  resolve();
+}
+
 Fetcher.prototype.download = function (remoteUrl, localPath) {
   var me = this;
   var filePath;
@@ -157,7 +166,9 @@ Fetcher.prototype.download = function (remoteUrl, localPath) {
 
   parsedRemoteUrl = url.parse(remoteUrl, true, true);
   if (values.FETCH_PROTOCOLS.indexOf(parsedRemoteUrl.protocol) === -1) {
-    return Promise.reject(new Error('cannot download ' + remoteUrl));
+    return new Promise(function (resolve, reject) {
+      rejectIfStrict(me, new Error('cannot download ' + remoteUrl), resolve, reject);
+    });
   }
 
   filename = me.generateLocalFilePath(remoteUrl);
@@ -168,15 +179,11 @@ Fetcher.prototype.download = function (remoteUrl, localPath) {
 
     reader = request(remoteUrl)
     .on('error', function (err) {
-      logError(err);
-      reject(err);
+      rejectIfStrict(me, err, resolve, reject);
     })
     .on('response', function (res) {
-      var errorMsg;
       if (res.statusCode !== 200) {
-        errorMsg = remoteUrl + ' : ' + res.statusCode;
-        logError(errorMsg);
-        reject(new Error(errorMsg));
+        rejectIfStrict(me, new Error(remoteUrl + ' : ' + res.statusCode), resolve, reject);
         return;
       }
       me.index.set(remoteUrl, filename);
@@ -184,8 +191,7 @@ Fetcher.prototype.download = function (remoteUrl, localPath) {
 
     writer = fs.createWriteStream(filePath)
     .on('error', function (err) {
-      logError(err);
-      reject(err);
+      rejectIfStrict(me, err, resolve, reject);
     })
     .on('finish', function () {
       resolve();
@@ -276,15 +282,7 @@ Fetcher.prototype.downloadAppCacheEntries = function () {
     return url.resolve(me.remoteUrl, entry.replace(/^\/\//, 'https://'));
   });
 
-  if (this.strictMode) {
-    return this.download(remoteUrls, me.localPath);
-  }
-
-  return this.download(remoteUrls, me.localPath)
-  .catch(function () {
-    // ignore download errors here
-    return Promise.resolve();
-  });
+  return this.download(remoteUrls, me.localPath);
 };
 
 Fetcher.prototype.postProcessFile = function (filePath) {
