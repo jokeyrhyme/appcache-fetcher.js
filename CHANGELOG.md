@@ -1,4 +1,14 @@
-# Changelog
+# Change Log
+
+
+## 1.3.1 - 2016-02-10
+
+
+### Fixed
+
+- ACF-8: prevent non-strict failures breaking later post-processing steps (#12, @jokeyrhyme)
+
+    - HelpDesk: 5592-WEGJ-0376
 
 
 ## v1.3.0 - 2015-11-25
