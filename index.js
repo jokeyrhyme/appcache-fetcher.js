@@ -14,6 +14,7 @@ var url = require('url');
 var AppCache = require('@jokeyrhyme/appcache');
 var chalk = require('chalk');
 var mkdirp = require('mkdirp');
+var pify = require('pify');
 var request = require('request');
 var temp = require('temp').track();
 
@@ -27,6 +28,9 @@ var utils = require(path.join(__dirname, 'lib', 'utils'));
 var values = require(path.join(__dirname, 'lib', 'values'));
 
 // this module
+
+var fsp = pify(fs);
+var mkdirpp = pify(mkdirp);
 
 function logError (msg) {
   console.error(chalk.red(msg));
@@ -97,41 +101,26 @@ Fetcher.prototype.afterTempPath = function () {
 Fetcher.prototype.afterLocalPath = function () {
   var me = this;
 
-  return new Promise(function (resolve, reject) {
-    mkdirp(me.localPath, function (err) {
-      if (err) {
-        reject(err);
-        return;
-      }
-      resolve(me.localPath);
+  return mkdirpp(me.localPath)
+    .then(function () {
+      return me.localPath;
     });
-  });
 };
 
 Fetcher.prototype.readFile = function (filePath) {
-  return new Promise(function (resolve, reject) {
-    fs.readFile(filePath, { encoding: 'utf8' }, function (err, contents) {
-      if (err) {
-        logError(err);
-        reject(err);
-        return;
-      }
-      resolve(contents);
+  return fsp.readFile(filePath, { encoding: 'utf8' })
+    .catch(function (err) {
+      logError(err);
+      throw err;
     });
-  });
 };
 
 Fetcher.prototype.writeFile = function (filePath, contents) {
-  return new Promise(function (resolve, reject) {
-    fs.writeFile(filePath, contents, function (err) {
-      if (err) {
-        logError(err);
-        reject(err);
-        return;
-      }
-      resolve();
+  return fsp.writeFile(filePath, contents)
+    .catch(function (err) {
+      logError(err);
+      throw err;
     });
-  });
 };
 
 Fetcher.prototype.generateAppCacheIndexShim = function () {
@@ -152,6 +141,15 @@ Fetcher.prototype.generateRequireShim = function () {
   return doBrowserify(addPath, filePath, {});
 };
 
+function rejectIfStrict (me, err, resolve, reject) {
+  logError(err);
+  if (me.strictMode) {
+    reject(err);
+    return;
+  }
+  resolve();
+}
+
 Fetcher.prototype.download = function (remoteUrl, localPath) {
   var me = this;
   var filePath;
@@ -168,7 +166,9 @@ Fetcher.prototype.download = function (remoteUrl, localPath) {
 
   parsedRemoteUrl = url.parse(remoteUrl, true, true);
   if (values.FETCH_PROTOCOLS.indexOf(parsedRemoteUrl.protocol) === -1) {
-    return Promise.reject(new Error('cannot download ' + remoteUrl));
+    return new Promise(function (resolve, reject) {
+      rejectIfStrict(me, new Error('cannot download ' + remoteUrl), resolve, reject);
+    });
   }
 
   filename = me.generateLocalFilePath(remoteUrl);
@@ -179,15 +179,11 @@ Fetcher.prototype.download = function (remoteUrl, localPath) {
 
     reader = request(remoteUrl)
     .on('error', function (err) {
-      logError(err);
-      reject(err);
+      rejectIfStrict(me, err, resolve, reject);
     })
     .on('response', function (res) {
-      var errorMsg;
       if (res.statusCode !== 200) {
-        errorMsg = remoteUrl + ' : ' + res.statusCode;
-        logError(errorMsg);
-        reject(new Error(errorMsg));
+        rejectIfStrict(me, new Error(remoteUrl + ' : ' + res.statusCode), resolve, reject);
         return;
       }
       me.index.set(remoteUrl, filename);
@@ -195,8 +191,7 @@ Fetcher.prototype.download = function (remoteUrl, localPath) {
 
     writer = fs.createWriteStream(filePath)
     .on('error', function (err) {
-      logError(err);
-      reject(err);
+      rejectIfStrict(me, err, resolve, reject);
     })
     .on('finish', function () {
       resolve();
@@ -249,10 +244,10 @@ Fetcher.prototype.getManifestURL = function () {
         remoteUrl: me.remoteUrl
       });
       if (manifestUrl) {
-        return Promise.resolve(manifestUrl);
+        return manifestUrl;
       }
     }
-    return Promise.resolve('');
+    return '';
   });
 };
 
@@ -287,15 +282,7 @@ Fetcher.prototype.downloadAppCacheEntries = function () {
     return url.resolve(me.remoteUrl, entry.replace(/^\/\//, 'https://'));
   });
 
-  if (this.strictMode) {
-    return this.download(remoteUrls, me.localPath);
-  }
-
-  return this.download(remoteUrls, me.localPath)
-  .catch(function () {
-    // ignore download errors here
-    return Promise.resolve();
-  });
+  return this.download(remoteUrls, me.localPath);
 };
 
 Fetcher.prototype.postProcessFile = function (filePath) {
@@ -319,7 +306,7 @@ Fetcher.prototype.postProcessFile = function (filePath) {
         index: me.index
       });
     }
-    return Promise.resolve(transformedContents);
+    return transformedContents;
   })
   .then(function (contents) {
     return me.writeFile(filePath, contents);
@@ -329,18 +316,16 @@ Fetcher.prototype.postProcessFile = function (filePath) {
 Fetcher.prototype.postProcessDownloads = function () {
   var me = this;
 
-  return new Promise(function (resolve, reject) {
-    fs.readdir(me.localPath, function (err, files) {
-      if (err) {
-        logError(err);
-        reject(err);
-        return;
-      }
-      Promise.all(files.map(function (file) {
+  return fsp.readdir(me.localPath)
+    .catch(function (err) {
+      logError(err);
+      throw err;
+    })
+    .then(function (files) {
+      return Promise.all(files.map(function (file) {
         return me.postProcessFile(path.join(me.localPath, file));
-      })).then(resolve, reject);
+      }));
     });
-  });
 };
 
 Fetcher.prototype.go = function () {
@@ -380,7 +365,7 @@ Fetcher.prototype.go = function () {
   })
   .then(null, function (err) {
     logError(err);
-    return Promise.reject(err);
+    throw err;
   });
 };
 
