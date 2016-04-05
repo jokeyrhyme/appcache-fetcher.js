@@ -1,6 +1,14 @@
 # Change Log
 
 
+## 1.3.2 - 2016-04-06
+
+
+### Fixed
+
+- ACF-10: properly handle CSS `url()`s with quotes (#13, @jokeyrhyme)
+
+
 ## 1.3.1 - 2016-02-10
 
 
