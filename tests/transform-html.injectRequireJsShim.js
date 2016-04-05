@@ -20,8 +20,6 @@ test('html with no Require.js', function (t) {
   var expected = '<html><script src="blah.js"></script><script src="require.load.js"></script></html>';
 
   t.is(out, expected);
-
-  t.end();
 });
 
 test('html with Require.js', function (t) {
@@ -30,6 +28,4 @@ test('html with Require.js', function (t) {
   var expected = '<html><script src="//cdn/require.min.js.gz"></script><script src="require.load.js"></script><script src="blah.js"></script></html>';
 
   t.is(out, expected);
-
-  t.end();
 });

@@ -21,7 +21,6 @@ process.chdir(path.join(__dirname));
 
 test('Fetcher', function (t) {
   t.is(typeof Fetcher, 'function');
-  t.end();
 });
 
 test('https://domain.com/example', function (t) {
@@ -30,7 +29,6 @@ test('https://domain.com/example', function (t) {
     'https://domain.com/example',
     'http://domain.com/example'
   ]);
-  t.end();
 });
 
 test('http://domain.com/example', function (t) {
@@ -39,7 +37,6 @@ test('http://domain.com/example', function (t) {
     'https://domain.com/example',
     'http://domain.com/example'
   ]);
-  t.end();
 });
 
 test('https://domain.com/example', function (t) {
@@ -48,7 +45,6 @@ test('https://domain.com/example', function (t) {
     'https://domain.com/example',
     'http://domain.com/example'
   ]);
-  t.end();
 });
 
 test('http://domain.com/example', function (t) {
@@ -57,7 +53,6 @@ test('http://domain.com/example', function (t) {
     'https://domain.com/example',
     'http://domain.com/example'
   ]);
-  t.end();
 });
 
 test('http://domain.com/example?abc&def=ghi', function (t) {
@@ -68,7 +63,6 @@ test('http://domain.com/example?abc&def=ghi', function (t) {
     'http://domain.com/example?abc=',
     'http://domain.com/example'
   ]);
-  t.end();
 });
 
 test('http://domain.com/example?abc&def=ghi', function (t) {
@@ -84,5 +78,4 @@ test('http://domain.com/example?abc&def=ghi', function (t) {
     // 'https://domain.com/example',
     // 'http://domain.com/example'
   ]);
-  t.end();
 });

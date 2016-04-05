@@ -20,8 +20,6 @@ test('html with no Require.js', function (t) {
   var srcs = requirejsSrc({ contents: html });
   t.ok(Array.isArray(srcs));
   t.is(srcs.length, 0);
-
-  t.end();
 });
 
 test('html with Require.js', function (t) {
@@ -31,6 +29,4 @@ test('html with Require.js', function (t) {
   t.ok(Array.isArray(srcs));
   t.is(srcs.length, 1);
   t.same(srcs, ['//cdn/require.min.js']);
-
-  t.end();
 });

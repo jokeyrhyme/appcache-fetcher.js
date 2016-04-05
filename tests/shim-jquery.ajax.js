@@ -44,8 +44,6 @@ test('empty index', function (t) {
     { url: 'http://example.com/remote-def.js', method: 'GET' }
   ];
   t.same($.ajax.apply($, args), args, JSON.stringify(args) + ': noop');
-
-  t.end();
 });
 
 test('matching index', function (t) {
@@ -88,6 +86,4 @@ test('matching index', function (t) {
     { url: 'local-def.js', method: 'GET' }
   ];
   t.same($.ajax.apply($, args), expected, JSON.stringify(args) + ': correct');
-
-  t.end();
 });
