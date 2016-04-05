@@ -17,7 +17,7 @@ var test = require('ava');
 
 var Fetcher = require('..');
 
-var common = require(path.join(__dirname, 'lib', 'common'));
+var common = require(path.join(__dirname, 'helpers', 'common'));
 
 // this module
 
@@ -30,7 +30,6 @@ var fetcher;
 
 test.before(function (t) {
   rimraf.sync(outputPath);
-  t.end();
 });
 
 test.serial('constructor', function (t) {
@@ -41,17 +40,10 @@ test.serial('constructor', function (t) {
     });
   });
   t.ok(fetcher);
-  t.end();
 });
 
 test.serial('.go()', function (t) {
-  fetcher.go().then(function () {
-    t.ok(true);
-    t.end();
-  }, function (err) {
-    t.error(err);
-    t.end();
-  });
+  return fetcher.go();
 });
 
 test.serial('index.html', function (t) {
@@ -64,7 +56,6 @@ test.serial('index.html', function (t) {
   // these tests fail because of weird URLs in HTML / AppCache (?yyyymmdd)
   // common.testHTMLLinkHref($, t);
   common.testHTMLScriptSrc($, t);
-  t.end();
 });
 
 common.makeIndexJSONTests(outputPath, remoteUrl);

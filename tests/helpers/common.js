@@ -20,7 +20,6 @@ module.exports = {
   makeAppCacheTests: function (outputPath) {
     test.serial('appcache.manifest', function (tt) {
       tt.ok(fs.existsSync(path.join(outputPath, 'appcache.manifest')));
-      tt.end();
     });
 
     test.serial('appcache.json', function (tt) {
@@ -32,7 +31,6 @@ module.exports = {
       });
       tt.is(typeof appCache, 'object');
       tt.ok(Array.isArray(appCache.cache));
-      tt.end();
     });
   },
 
@@ -61,14 +59,12 @@ module.exports = {
           });
         }
       });
-      ttt.end();
     });
   },
 
   makeJavaScriptTests: function (outputPath) {
     test.serial('appCacheIndex.js exists', function (tt) {
       tt.ok(fs.existsSync(path.join(outputPath, 'appCacheIndex.js')));
-      tt.end();
     });
 
     // __dirname is a symptom of weird module paths that break in the app
@@ -78,12 +74,10 @@ module.exports = {
         { encoding: 'utf8' }
       );
       tt.not(~contents.indexOf('__dirname'));
-      tt.end();
     });
 
     test.serial('require.load.js exists', function (tt) {
       tt.ok(fs.existsSync(path.join(outputPath, 'require.load.js')));
-      tt.end();
     });
 
     // __dirname is a symptom of weird module paths that break in the app
@@ -93,7 +87,6 @@ module.exports = {
         { encoding: 'utf8' }
       );
       tt.not(~contents.indexOf('__dirname'));
-      tt.end();
     });
   },
 
@@ -107,7 +100,6 @@ module.exports = {
       });
       tt.is(typeof index, 'object');
       tt.is(index[remoteUrl], 'index.html');
-      tt.end();
     });
   },
 

@@ -1,0 +1,12 @@
+{
+  "extends": ["eslint:recommended", "semistandard"],
+  "env": {
+    "amd": true,
+    "browser": false,
+    "mocha": false,
+    "node": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 5
+  }
+}
