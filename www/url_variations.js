@@ -6,7 +6,6 @@ var url = require('url');
 
 // 3rd-party modules
 
-var clone = require('cyclonejs').clone;
 var uniq = require('lodash.uniq');
 
 // this module
@@ -18,7 +17,7 @@ exports.getURLVariationsOnQuery = function (input, isSub) {
   output.push(input);
   delete parsed.search;
   Object.keys(oldQuery).forEach(function (key) {
-    var newQuery = clone(oldQuery);
+    var newQuery = JSON.parse(JSON.stringify(oldQuery));
     var subVariations;
     delete newQuery[key];
     parsed.query = newQuery;
