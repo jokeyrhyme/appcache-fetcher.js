@@ -1,5 +1,8 @@
 {
-  "extends": ["eslint:recommended", "semistandard"],
+  "extends": [
+    "eslint:recommended",
+    "semistandard"
+  ],
   "env": {
     "amd": true,
     "browser": false,

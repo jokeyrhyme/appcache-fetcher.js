@@ -41,12 +41,30 @@
   ],
   "license": "BSD-2-Clause",
   "main": "index.js",
-  "repository": "https://github.com/jokeyrhyme/appcache-fetcher.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jokeyrhyme/appcache-fetcher.js.git"
+  },
   "scripts": {
-    "eslint": "eslint --fix .",
+    "eslint": "eslint --fix --cache .",
     "fixpack": "fixpack",
     "nyc": "nyc check-coverage -f 90 -l 90 -s 90",
     "posttest": "npm run nyc && npm run eslint && npm run fixpack",
     "test": "nyc ava tests/*.js"
+  },
+  "bugs": {
+    "url": "https://github.com/jokeyrhyme/appcache-fetcher.js/issues"
+  },
+  "homepage": "https://github.com/jokeyrhyme/appcache-fetcher.js#readme",
+  "directories": {
+    "test": "tests"
+  },
+  "keywords": [
+      "appcache",
+      "fetch"
+  ],
+  "author": "",
+  "publishConfig": {
+    "access": "public"
   }
 }
