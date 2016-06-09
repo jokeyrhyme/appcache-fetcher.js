@@ -25,4 +25,6 @@ test('utils.stripGZ', function (t) {
   t.is(fn('https://file.js'), 'https://file.js');
   t.is(fn('https://file.js.gz'), 'https://file.js');
   t.is(fn('https://file.gz.js'), 'https://file.js');
+  t.is(fn(undefined), '');
+  t.is(fn(null), '');
 });
