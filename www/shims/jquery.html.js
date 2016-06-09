@@ -21,7 +21,7 @@ module.exports = function (index, context, method) {
 
   var fixHtml = function (value) {
     if (value && typeof value === 'string') {
-      value = value.replace(/<img[-_\s\=\"\'\.\/\:\w]* src="([-_\.\/\:\w]+)"/gmi, fixSrc);
+      value = value.replace(/<img[-_\s="'\.\/:\w]* src="([-_\.\/:\w]+)"/gmi, fixSrc);
     }
 
     return value;
