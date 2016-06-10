@@ -24,7 +24,7 @@ test.serial.cb('load fixture: data-uri.appcache', function (t) {
   fs.readFile(filePath, { encoding: 'utf8' }, function (err, contents) {
     t.error(err);
     fixture = contents;
-    t.ok(fixture);
+    t.truthy(fixture);
     t.is(typeof fixture, 'string');
     t.end();
   });
@@ -33,7 +33,7 @@ test.serial.cb('load fixture: data-uri.appcache', function (t) {
 test.serial.cb('Fetcher#saveAppCacheAsJSON() -> #writeFile()', function (t) {
   fetcher.writeFile = function (filePath, json) {
     parsed = JSON.parse(json);
-    t.ok(parsed);
+    t.truthy(parsed);
     t.is(typeof parsed, 'object');
     t.end();
   };
@@ -42,7 +42,7 @@ test.serial.cb('Fetcher#saveAppCacheAsJSON() -> #writeFile()', function (t) {
 
 test.serial.cb('parsed JSON has expected content', function (t) {
   t.is(parsed.cache.length, 3, 'all 3 CACHE entries found');
-  t.same(parsed.cache, [
+  t.deepEqual(parsed.cache, [
     'http://google.com/',
     'https://github.com/',
     'image.jpeg'

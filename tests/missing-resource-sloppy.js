@@ -68,7 +68,7 @@ test.serial('index.json populated correctly', function (t) {
       AVAILABLE_RESOURCES.map(function (resource) {
         return url.resolve(REMOTE_URL, resource);
       }).forEach(function (resource) {
-        t.ok(~remoteUrls.indexOf(resource));
+        t.truthy(~remoteUrls.indexOf(resource));
       });
     });
 });
@@ -89,10 +89,10 @@ test.serial('index.html downloaded and processed', function (t) {
 
       // confirm that available resources were properly substituted
       AVAILABLE_RESOURCES.forEach(function (resource) {
-        t.notOk(~stored.indexOf(' src="' + resource + '"'));
-        t.ok(~stored.indexOf(' data-appcache-src="' + resource + '"'));
+        t.falsy(~stored.indexOf(' src="' + resource + '"'));
+        t.truthy(~stored.indexOf(' data-appcache-src="' + resource + '"'));
       });
 
-      t.ok(/\ssrc="[^"]+missing\.js"/.test(stored));
+      t.truthy(/\ssrc="[^"]+missing\.js"/.test(stored));
     });
 });

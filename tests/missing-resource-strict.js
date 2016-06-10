@@ -49,14 +49,14 @@ test.beforeEach((t) => {
 test.serial('fetcher.go() fails', function (t) {
   return t.context.fetcher.go()
     .catch(function (err) {
-      t.ok(err);
+      t.truthy(err);
     });
 });
 
 test.serial('index.html downloaded and unmodified', function (t) {
   return t.context.fetcher.go()
     .catch(function (err) {
-      t.ok(err);
+      t.truthy(err);
     })
     .then(function () {
       return Promise.all([
