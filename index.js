@@ -36,6 +36,11 @@ function logError (msg) {
   console.error(chalk.red(msg));
 }
 
+function logErrorAndThrow (err) {
+  logError(err);
+  throw err;
+}
+
 /**
  * @constructor
  * @param {Object} opts { remoteUrl: '', localPath: '' }
@@ -84,43 +89,31 @@ Fetcher.prototype.addTransform = function (ext, fn) {
 };
 
 Fetcher.prototype.afterTempPath = function () {
-  var me = this;
-
-  return new Promise(function (resolve, reject) {
-    temp.mkdir('appcache-fetcher-' + me.date.valueOf(), function (err, dirPath) {
+  return new Promise((resolve, reject) => {
+    temp.mkdir('appcache-fetcher-' + this.date.valueOf(), (err, dirPath) => {
       if (err) {
         reject(err);
         return;
       }
-      me.tempPath = dirPath;
+      this.tempPath = dirPath;
       resolve(dirPath);
     });
   });
 };
 
 Fetcher.prototype.afterLocalPath = function () {
-  var me = this;
-
-  return mkdirpp(me.localPath)
-    .then(function () {
-      return me.localPath;
-    });
+  return mkdirpp(this.localPath)
+    .then(() => this.localPath);
 };
 
 Fetcher.prototype.readFile = function (filePath) {
   return fsp.readFile(filePath, { encoding: 'utf8' })
-    .catch(function (err) {
-      logError(err);
-      throw err;
-    });
+    .catch(logErrorAndThrow);
 };
 
 Fetcher.prototype.writeFile = function (filePath, contents) {
   return fsp.writeFile(filePath, contents)
-    .catch(function (err) {
-      logError(err);
-      throw err;
-    });
+    .catch(logErrorAndThrow);
 };
 
 Fetcher.prototype.generateAppCacheIndexShim = function () {
@@ -151,14 +144,13 @@ function rejectIfStrict (me, err, resolve, reject) {
 }
 
 Fetcher.prototype.download = function (remoteUrl, localPath) {
-  var me = this;
   var filePath;
   var filename;
   var parsedRemoteUrl;
 
   if (Array.isArray(remoteUrl)) {
-    return Promise.all(remoteUrl.map(function (r) {
-      return me.download(r, localPath);
+    return Promise.all(remoteUrl.map((r) => {
+      return this.download(r, localPath);
     }));
   }
 
@@ -166,36 +158,34 @@ Fetcher.prototype.download = function (remoteUrl, localPath) {
 
   parsedRemoteUrl = url.parse(remoteUrl, true, true);
   if (values.FETCH_PROTOCOLS.indexOf(parsedRemoteUrl.protocol) === -1) {
-    return new Promise(function (resolve, reject) {
-      rejectIfStrict(me, new Error('cannot download ' + remoteUrl), resolve, reject);
+    return new Promise((resolve, reject) => {
+      rejectIfStrict(this, new Error('cannot download ' + remoteUrl), resolve, reject);
     });
   }
 
-  filename = me.generateLocalFilePath(remoteUrl);
+  filename = this.generateLocalFilePath(remoteUrl);
   filePath = path.join(localPath, filename);
 
-  return new Promise(function (resolve, reject) {
+  return new Promise((resolve, reject) => {
     var reader, writer;
 
     reader = request(remoteUrl)
-    .on('error', function (err) {
-      rejectIfStrict(me, err, resolve, reject);
+    .on('error', (err) => {
+      rejectIfStrict(this, err, resolve, reject);
     })
-    .on('response', function (res) {
+    .on('response', (res) => {
       if (res.statusCode !== 200) {
-        rejectIfStrict(me, new Error(remoteUrl + ' : ' + res.statusCode), resolve, reject);
+        rejectIfStrict(this, new Error(remoteUrl + ' : ' + res.statusCode), resolve, reject);
         return;
       }
-      me.index.set(remoteUrl, filename);
+      this.index.set(remoteUrl, filename);
     });
 
     writer = fs.createWriteStream(filePath)
-    .on('error', function (err) {
-      rejectIfStrict(me, err, resolve, reject);
+    .on('error', (err) => {
+      rejectIfStrict(this, err, resolve, reject);
     })
-    .on('finish', function () {
-      resolve();
-    });
+    .on('finish', () => resolve());
 
     reader.pipe(writer);
   });
@@ -224,7 +214,6 @@ Fetcher.prototype.persistFilesIndex = function () {
 };
 
 Fetcher.prototype.getManifestURL = function () {
-  var me = this;
   var filePath = path.join(this.localPath, 'index.html');
   var extractors = this.extractors.manifestUrl;
 
@@ -232,23 +221,23 @@ Fetcher.prototype.getManifestURL = function () {
     return Promise.reject(new Error('no manifestUrl extractors'));
   }
 
-  return me.readFile(filePath)
-  .then(function (contents) {
-    var manifestUrl;
-    var e, eLength, extractor;
-    eLength = extractors.length;
-    for (e = 0; e < eLength; e++) {
-      extractor = extractors[e];
-      manifestUrl = extractor({
-        contents: contents,
-        remoteUrl: me.remoteUrl
-      });
-      if (manifestUrl) {
-        return manifestUrl;
+  return this.readFile(filePath)
+    .then((contents) => {
+      var manifestUrl;
+      var e, eLength, extractor;
+      eLength = extractors.length;
+      for (e = 0; e < eLength; e++) {
+        extractor = extractors[e];
+        manifestUrl = extractor({
+          contents: contents,
+          remoteUrl: this.remoteUrl
+        });
+        if (manifestUrl) {
+          return manifestUrl;
+        }
       }
-    }
-    return '';
-  });
+      return '';
+    });
 };
 
 Fetcher.prototype.saveAppCacheAsJSON = function (input) {
@@ -260,113 +249,85 @@ Fetcher.prototype.saveAppCacheAsJSON = function (input) {
     promise = this.readFile(path.join(this.localPath, 'appcache.manifest'));
   }
 
-  return promise.then(function (contents) {
+  return promise.then((contents) => {
     var appCache = AppCache.parse(contents);
     appCache.cache = appCache.cache.filter(utils.filterUnfetchables);
     return this.writeFile(
       path.join(this.localPath, 'appcache.json'),
       JSON.stringify(appCache, null, 2)
     );
-  }.bind(this));
+  });
 };
 
 Fetcher.prototype.downloadAppCacheEntries = function () {
-  var me = this;
   var appCache;
   var remoteUrls;
 
-  delete require.cache[path.join(me.localPath, 'appcache.json')];
-  appCache = require(path.join(me.localPath, 'appcache.json'));
+  delete require.cache[path.join(this.localPath, 'appcache.json')];
+  appCache = require(path.join(this.localPath, 'appcache.json'));
 
-  remoteUrls = appCache.cache.map(function (entry) {
-    return url.resolve(me.remoteUrl, entry.replace(/^\/\//, 'https://'));
+  remoteUrls = appCache.cache.map((entry) => {
+    return url.resolve(this.remoteUrl, entry.replace(/^\/\//, 'https://'));
   });
 
-  return this.download(remoteUrls, me.localPath);
+  return this.download(remoteUrls, this.localPath);
 };
 
 Fetcher.prototype.postProcessFile = function (filePath) {
-  var me = this;
   var ext = path.extname(filePath).toLowerCase().replace('.', '');
-  var transforms = me.transforms[ext];
+  var transforms = this.transforms[ext];
   if (!Array.isArray(transforms) || !transforms.length) {
     return Promise.resolve();
   }
   console.log('postProcessFile:', filePath.replace(process.cwd(), ''));
   return this.readFile(filePath)
-  .then(function (contents) {
-    var transformedContents = contents;
-    var t, tLength, transform;
-    tLength = transforms.length;
-    for (t = 0; t < tLength; t++) {
-      transform = transforms[t];
-      transformedContents = transform({
-        contents: transformedContents,
-        filePath: filePath,
-        index: me.index
-      });
-    }
-    return transformedContents;
-  })
-  .then(function (contents) {
-    return me.writeFile(filePath, contents);
-  });
-};
-
-Fetcher.prototype.postProcessDownloads = function () {
-  var me = this;
-
-  return fsp.readdir(me.localPath)
-    .catch(function (err) {
-      logError(err);
-      throw err;
+    .then((contents) => {
+      var transformedContents = contents;
+      var t, tLength, transform;
+      tLength = transforms.length;
+      for (t = 0; t < tLength; t++) {
+        transform = transforms[t];
+        transformedContents = transform({
+          contents: transformedContents,
+          filePath: filePath,
+          index: this.index
+        });
+      }
+      return transformedContents;
     })
-    .then(function (files) {
-      return Promise.all(files.map(function (file) {
-        return me.postProcessFile(path.join(me.localPath, file));
-      }));
+    .then((contents) => {
+      return this.writeFile(filePath, contents);
     });
 };
 
-Fetcher.prototype.go = function () {
-  var me = this;
+Fetcher.prototype.postProcessDownloads = function () {
+  return fsp.readdir(this.localPath)
+    .catch(logErrorAndThrow)
+    .then((files) => Promise.all(files.map((file) => {
+      return this.postProcessFile(path.join(this.localPath, file));
+    })));
+};
 
+Fetcher.prototype.go = function () {
   return Promise.all([
     this.afterTempPath(),
     this.afterLocalPath()
   ])
-  .then(function () {
-    return me.download(me.remoteUrl, me.localPath);
-  })
-  .then(function () {
-    return me.getManifestURL();
-  })
-  .then(function (manifestUrl) {
-    me.manifestUrl = manifestUrl;
-    return me.download(me.manifestUrl, me.localPath);
-  })
-  .then(function () {
-    return me.saveAppCacheAsJSON();
-  })
-  .then(function () {
-    return me.downloadAppCacheEntries();
-  })
-  .then(function () {
-    return me.persistFilesIndex();
-  })
-  .then(function () {
-    return me.postProcessDownloads();
-  })
-  .then(function () {
-    return Promise.all([
-      me.generateAppCacheIndexShim(),
-      me.generateRequireShim()
-    ]);
-  })
-  .then(null, function (err) {
-    logError(err);
-    throw err;
-  });
+    .then(() => this.download(this.remoteUrl, this.localPath))
+    .then(() => this.getManifestURL())
+    .then((manifestUrl) => {
+      this.manifestUrl = manifestUrl;
+      return this.download(this.manifestUrl, this.localPath);
+    })
+    .then(() => this.saveAppCacheAsJSON())
+    .then(() => this.downloadAppCacheEntries())
+    .then(() => this.persistFilesIndex())
+    .then(() => this.postProcessDownloads())
+    .then(() => Promise.all([
+      this.generateAppCacheIndexShim(),
+      this.generateRequireShim()
+    ]))
+    .catch(logErrorAndThrow);
 };
 
 Fetcher.getURLVariationsOnQuery = urlVars.getURLVariationsOnQuery;

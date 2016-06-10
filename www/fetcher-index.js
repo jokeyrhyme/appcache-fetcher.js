@@ -24,18 +24,19 @@ FetcherIndex.prototype.set = function (remoteUrl, localUrl) {
 };
 
 FetcherIndex.prototype.resolveRemoteUrl = function (localUrl) {
-  var me = this;
-  var remoteUrl;
-  Object.keys(this.index).forEach(function (key) {
-    if (me.index[key] === localUrl) {
-      remoteUrl = key;
+  var candidates = Object.keys(this.index);
+  var key, c, cLength;
+  cLength = candidates.length;
+  for (c = 0; c < cLength; c += 1) {
+    key = candidates[c];
+    if (this.index[key] === localUrl) {
+      return key;
     }
-  });
-  return remoteUrl || null;
+  }
+  return null;
 };
 
 FetcherIndex.prototype.resolveLocalUrl = function (remoteUrl) {
-  var me = this;
   var absUrl;
   var localHref;
   var variations, v, vLength, variation;
@@ -45,7 +46,7 @@ FetcherIndex.prototype.resolveLocalUrl = function (remoteUrl) {
   vLength = variations.length;
   for (v = 0; v < vLength; v++) {
     variation = variations[v];
-    localHref = me.index[variation];
+    localHref = this.index[variation];
     if (localHref) {
       return localHref;
     }
