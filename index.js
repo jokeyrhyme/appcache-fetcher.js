@@ -42,16 +42,6 @@ function logErrorAndThrow (err) {
   throw err;
 }
 
-function pipeChain (stream, pipes) {
-  var head, rest;
-  if (!Array.isArray(pipes) || !pipes.length) {
-    return stream;
-  }
-  head = pipes[0];
-  rest = pipes.slice(1);
-  return pipeChain(stream.pipe(head), rest);
-}
-
 /**
  * @constructor
  * @param {Object} opts { remoteUrl: '', localPath: '' }
@@ -292,8 +282,11 @@ Fetcher.prototype.postProcessFile = function (filePath) {
   }
   console.log('postProcessFile:', filePath.replace(process.cwd(), ''));
   return new Promise((resolve, reject) => {
-    pipeChain(vfs.src([ filePath ]), transforms.map((tf) => {
-      return tf({ index: this.index });
+    utils.pipeTransforms(vfs.src([ filePath ]), transforms.map((tf) => {
+      return tf({
+        fetcher: this,
+        index: this.index
+      });
     }))
       .pipe(vfs.dest(path.dirname(filePath)))
       .on('error', (err) => reject(err))
