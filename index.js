@@ -17,6 +17,7 @@ var mkdirp = require('mkdirp');
 var pify = require('pify');
 var request = require('request');
 var temp = require('temp').track();
+var vfs = require('vinyl-fs');
 
 // our modules
 
@@ -39,6 +40,16 @@ function logError (msg) {
 function logErrorAndThrow (err) {
   logError(err);
   throw err;
+}
+
+function pipeChain (stream, pipes) {
+  var head, rest;
+  if (!Array.isArray(pipes) || !pipes.length) {
+    return stream;
+  }
+  head = pipes[0];
+  rest = pipes.slice(1);
+  return pipeChain(stream.pipe(head), rest);
 }
 
 /**
@@ -280,24 +291,14 @@ Fetcher.prototype.postProcessFile = function (filePath) {
     return Promise.resolve();
   }
   console.log('postProcessFile:', filePath.replace(process.cwd(), ''));
-  return this.readFile(filePath)
-    .then((contents) => {
-      var transformedContents = contents;
-      var t, tLength, transform;
-      tLength = transforms.length;
-      for (t = 0; t < tLength; t++) {
-        transform = transforms[t];
-        transformedContents = transform({
-          contents: transformedContents,
-          filePath: filePath,
-          index: this.index
-        });
-      }
-      return transformedContents;
-    })
-    .then((contents) => {
-      return this.writeFile(filePath, contents);
-    });
+  return new Promise((resolve, reject) => {
+    pipeChain(vfs.src([ filePath ]), transforms.map((tf) => {
+      return tf({ index: this.index });
+    }))
+      .pipe(vfs.dest(path.dirname(filePath)))
+      .on('error', (err) => reject(err))
+      .on('end', () => resolve());
+  });
 };
 
 Fetcher.prototype.postProcessDownloads = function () {

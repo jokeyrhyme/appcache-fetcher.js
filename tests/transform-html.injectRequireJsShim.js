@@ -10,7 +10,7 @@ var test = require('ava');
 
 // our modules
 
-var injectRequireJsShim = require(path.join(__dirname, '..', 'lib', 'transforms', 'html.injectRequireJsShim'));
+var injectRequireJsShim = require(path.join(__dirname, '..', 'lib', 'transforms', 'html.injectRequireJsShim')).transform;
 
 // this module
 
