@@ -8,7 +8,7 @@ var path = require('path');
 // foreign modules
 
 var pify = require('pify');
-var temp = pify(require('temp').track());
+var temp = pify(require('temp'));
 var test = require('ava');
 
 // local modules
@@ -18,6 +18,11 @@ var pkg = require('../package.json');
 var server = require('./fixtures/server');
 
 // this module
+
+// CIs don't need this auto-teardown, just developer machines
+if (!process.env.CI) {
+  temp.track();
+}
 
 var fsp = pify(fs);
 
