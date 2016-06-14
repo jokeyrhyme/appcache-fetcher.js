@@ -73,6 +73,7 @@ function Fetcher (opts) {
   this.addTransform('html', require(path.join(__dirname, 'lib', 'transforms', 'html.localScriptSrcs')));
   this.addTransform('html', require(path.join(__dirname, 'lib', 'transforms', 'html.injectAppCacheIndex')));
   this.addTransform('html', require(path.join(__dirname, 'lib', 'transforms', 'html.injectRequireJsShim')));
+  this.addTransform('html', require(path.join(__dirname, 'lib', 'transforms', 'html.styleTransforms')));
 }
 
 Fetcher.prototype.addExtractor = function (prop, fn) {
