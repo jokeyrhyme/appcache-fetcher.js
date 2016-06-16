@@ -25,3 +25,8 @@ store an AppCache-enabled site on disk for local use
 
 Trigger the whole process, downloading remote assets, processing them,
 and storing them locally.
+
+
+## Compatibility
+
+- versions >=2.x require Node.js >=4.x

@@ -1,6 +1,37 @@
 # Change Log
 
 
+## 2.0.0 - 2016-06-16
+
+
+### Changed
+
+- officially drop support for anything older than Node.js 4
+
+- ACF-11: run CSS transforms on styles within HTML (#14, @jokeyrhyme)
+
+    - this includes the content of STYLE tags, and the content of "style" attributes on tags
+
+- ACF-11: transforms are now passed the Fetcher instance itself
+
+    - allows transforms to access other transforms, for example
+
+- ACF-11: transforms are expected to be proper [`stream.Transform`](https://nodejs.org/dist/latest-v4.x/docs/api/stream.html#stream_class_stream_transform) streams
+
+    - see the [through2](https://github.com/rvagg/through2) documentation for examples
+
+- ACF-11: transforms are expected to be able to consume [vinyl](https://github.com/gulpjs/vinyl) `File` objects, just like [gulp](https://github.com/gulpjs/gulp) plugins
+
+- drop a dependency on [cyclonejs](https://github.com/traviskaufman/cycloneJS), our use case doesn't require `Object`s to be cloned quite so thoroughly
+
+
+### Fixed
+
+- the ".gz" stripping algorithm now avoids platform-specific behaviours in the built-in "path" module
+
+- the Require.js extractor and shimming-transform now avoid platform-specific behaviours in the built-in "path" module
+
+
 ## 1.3.2 - 2016-04-06
 
 
