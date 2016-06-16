@@ -22,7 +22,9 @@ test('utils.stripGZ', function (t) {
   t.is(fn('/just/path/file.js'), '/just/path/file.js');
   t.is(fn('/just/path/file.js.gz'), '/just/path/file.js');
   t.is(fn('/just/path/file.gz.js'), '/just/path/file.js');
-  t.is(fn('https://file.js'), 'https://file.js');
-  t.is(fn('https://file.js.gz'), 'https://file.js');
-  t.is(fn('https://file.gz.js'), 'https://file.js');
+  t.is(fn('https://abc.xyz/file.js'), 'https://abc.xyz/file.js');
+  t.is(fn('https://abc.xyz/file.js.gz'), 'https://abc.xyz/file.js');
+  t.is(fn('https://abc.xyz/file.gz.js'), 'https://abc.xyz/file.js');
+  t.is(fn(undefined), '');
+  t.is(fn(null), '');
 });

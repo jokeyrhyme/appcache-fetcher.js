@@ -25,25 +25,25 @@ test('empty index', function (t) {
   require(path.join(__dirname, '..', 'www', 'shims', 'jquery.ajax'))(fetcherIndex, $, 'ajax');
 
   args = [];
-  t.same($.ajax.apply($, args), args, JSON.stringify(args) + ': noop');
+  t.deepEqual($.ajax.apply($, args), args, JSON.stringify(args) + ': noop');
 
   args = [ { method: 'GET' } ];
-  t.same($.ajax.apply($, args), args, JSON.stringify(args) + ': noop');
+  t.deepEqual($.ajax.apply($, args), args, JSON.stringify(args) + ': noop');
 
   args = [
     'http://example.com/remote-abc.js',
     { method: 'GET' }
   ];
-  t.same($.ajax.apply($, args), args, JSON.stringify(args) + ': noop');
+  t.deepEqual($.ajax.apply($, args), args, JSON.stringify(args) + ': noop');
 
   args = [ { url: 'http://example.com/remote-abc.js', method: 'GET' } ];
-  t.same($.ajax.apply($, args), args, JSON.stringify(args) + ': noop');
+  t.deepEqual($.ajax.apply($, args), args, JSON.stringify(args) + ': noop');
 
   args = [
     'http://example.com/remote-abc.js',
     { url: 'http://example.com/remote-def.js', method: 'GET' }
   ];
-  t.same($.ajax.apply($, args), args, JSON.stringify(args) + ': noop');
+  t.deepEqual($.ajax.apply($, args), args, JSON.stringify(args) + ': noop');
 });
 
 test('matching index', function (t) {
@@ -58,10 +58,10 @@ test('matching index', function (t) {
   fetcherIndex.set('http://example.com/remote-def.js', 'local-def.js');
 
   args = [];
-  t.same($.ajax.apply($, args), args, JSON.stringify(args) + ': noop');
+  t.deepEqual($.ajax.apply($, args), args, JSON.stringify(args) + ': noop');
 
   args = [ { method: 'GET' } ];
-  t.same($.ajax.apply($, args), args, JSON.stringify(args) + ': noop');
+  t.deepEqual($.ajax.apply($, args), args, JSON.stringify(args) + ': noop');
 
   args = [
     'http://example.com/remote-abc.js',
@@ -71,11 +71,11 @@ test('matching index', function (t) {
     'local-abc.js',
     { method: 'GET' }
   ];
-  t.same($.ajax.apply($, args), expected, JSON.stringify(args) + ': correct');
+  t.deepEqual($.ajax.apply($, args), expected, JSON.stringify(args) + ': correct');
 
   args = [ { url: 'http://example.com/remote-abc.js', method: 'GET' } ];
   expected = [ { url: 'local-abc.js', method: 'GET' } ];
-  t.same($.ajax.apply($, args), expected, JSON.stringify(args) + ': correct');
+  t.deepEqual($.ajax.apply($, args), expected, JSON.stringify(args) + ': correct');
 
   args = [
     'http://example.com/remote-abc.js',
@@ -85,5 +85,5 @@ test('matching index', function (t) {
     'local-abc.js',
     { url: 'local-def.js', method: 'GET' }
   ];
-  t.same($.ajax.apply($, args), expected, JSON.stringify(args) + ': correct');
+  t.deepEqual($.ajax.apply($, args), expected, JSON.stringify(args) + ': correct');
 });

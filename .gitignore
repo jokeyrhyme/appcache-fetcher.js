@@ -2,6 +2,7 @@
 node_modules
 
 # output files
+.eslintcache
 .nyc_output
 coverage
 output

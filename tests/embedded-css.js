@@ -4,6 +4,7 @@
 
 var fs = require('fs');
 var path = require('path');
+var url = require('url');
 
 // foreign modules
 
@@ -26,13 +27,17 @@ if (!process.env.CI) {
 
 var fsp = pify(fs);
 
-var FIXTURE_PATH = path.join(__dirname, 'fixtures', 'missing-resource');
+var FIXTURE_PATH = path.join(__dirname, 'fixtures', 'embedded-css');
 var REMOTE_URL;
 
+var AVAILABLE_RESOURCES = [
+  'background.svg'
+];
+
 test.before(function () {
-  return server.start({ port: 3001 })
+  return server.start({ port: 3002 })
     .then(function (origin) {
-      REMOTE_URL = origin + '/missing-resource/';
+      REMOTE_URL = origin + '/embedded-css/';
     });
 });
 
@@ -51,18 +56,28 @@ test.beforeEach((t) => {
     });
 });
 
-test.serial('fetcher.go() fails', function (t) {
+test.serial('fetcher.go()', function (t) {
+  return t.context.fetcher.go();
+});
+
+var index;
+
+test.serial('index.json populated correctly', function (t) {
   return t.context.fetcher.go()
-    .catch(function (err) {
-      t.truthy(err);
+    .then(function () {
+      index = require(path.join(t.context.tempDir, 'index.json'));
+      var remoteUrls = Object.keys(index);
+
+      AVAILABLE_RESOURCES.map(function (resource) {
+        return url.resolve(REMOTE_URL, resource);
+      }).forEach(function (resource) {
+        t.truthy(~remoteUrls.indexOf(resource));
+      });
     });
 });
 
-test.serial('index.html downloaded and unmodified', function (t) {
+test.serial('index.html downloaded and processed', function (t) {
   return t.context.fetcher.go()
-    .catch(function (err) {
-      t.truthy(err);
-    })
     .then(function () {
       return Promise.all([
         fsp.readFile(path.join(t.context.tempDir, 'index.html'), 'utf8'),
@@ -70,6 +85,15 @@ test.serial('index.html downloaded and unmodified', function (t) {
       ]);
     })
     .then(function (results) {
-      t.is(results[0], results[1]);
+      var stored = results[0];
+      var original = results[1];
+
+      t.not(stored, original);
+
+      // confirm that available resources were properly substituted
+      AVAILABLE_RESOURCES.forEach(function (resource) {
+        t.falsy(~stored.indexOf('url(' + resource + ')'));
+        t.truthy(~stored.indexOf('url(' + index[url.resolve(REMOTE_URL, resource)] + ')'));
+      });
     });
 });

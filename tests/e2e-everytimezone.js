@@ -34,13 +34,13 @@ test.before(function (t) {
 });
 
 test.serial('constructor', function (t) {
-  t.doesNotThrow(function () {
+  t.notThrows(function () {
     fetcher = new Fetcher({
       remoteUrl: remoteUrl,
       localPath: relativeOutputPath
     });
   });
-  t.ok(fetcher);
+  t.truthy(fetcher);
 });
 
 test.serial('.go()', function (t) {
@@ -50,10 +50,10 @@ test.serial('.go()', function (t) {
 test.serial('index.html', function (t) {
   var contents;
   var $;
-  t.ok(fs.existsSync(path.join(outputPath, 'index.html')));
+  t.truthy(fs.existsSync(path.join(outputPath, 'index.html')));
   contents = fs.readFileSync(path.join(outputPath, 'index.html'), { encoding: 'utf8' });
   $ = cheerio.load(contents);
-  t.notOk($('html').attr('manifest'), 'no AppCache manifest attribute');
+  t.falsy($('html').attr('manifest'), 'no AppCache manifest attribute');
   common.testHTMLLinkHref($, t);
   // these tests fail because of weird URLs in HTML / AppCache (?yyyymmdd)
   // common.testHTMLScriptSrc($, t);

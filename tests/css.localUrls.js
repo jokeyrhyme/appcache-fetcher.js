@@ -11,7 +11,7 @@ var test = require('ava');
 
 // local modules
 
-var cssLocalUrls = require('../lib/transforms/css.localUrls.js');
+var cssLocalUrls = require('../lib/transforms/css.localUrls.js').transform;
 var FetcherIndex = require('../www/fetcher-index.js');
 
 // this module

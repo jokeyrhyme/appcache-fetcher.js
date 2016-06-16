@@ -9,7 +9,7 @@ var url = require('url');
 // foreign modules
 
 var pify = require('pify');
-var temp = pify(require('temp').track());
+var temp = pify(require('temp'));
 var test = require('ava');
 
 // local modules
@@ -19,6 +19,11 @@ var pkg = require('../package.json');
 var server = require('./fixtures/server');
 
 // this module
+
+// CIs don't need this auto-teardown, just developer machines
+if (!process.env.CI) {
+  temp.track();
+}
 
 var fsp = pify(fs);
 
@@ -68,7 +73,7 @@ test.serial('index.json populated correctly', function (t) {
       AVAILABLE_RESOURCES.map(function (resource) {
         return url.resolve(REMOTE_URL, resource);
       }).forEach(function (resource) {
-        t.ok(~remoteUrls.indexOf(resource));
+        t.truthy(~remoteUrls.indexOf(resource));
       });
     });
 });
@@ -89,10 +94,10 @@ test.serial('index.html downloaded and processed', function (t) {
 
       // confirm that available resources were properly substituted
       AVAILABLE_RESOURCES.forEach(function (resource) {
-        t.notOk(~stored.indexOf(' src="' + resource + '"'));
-        t.ok(~stored.indexOf(' data-appcache-src="' + resource + '"'));
+        t.falsy(~stored.indexOf(' src="' + resource + '"'));
+        t.truthy(~stored.indexOf(' data-appcache-src="' + resource + '"'));
       });
 
-      t.ok(/\ssrc="[^"]+missing\.js"/.test(stored));
+      t.truthy(/\ssrc="[^"]+missing\.js"/.test(stored));
     });
 });

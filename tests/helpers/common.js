@@ -19,18 +19,18 @@ module.exports = {
 
   makeAppCacheTests: function (outputPath) {
     test.serial('appcache.manifest', function (tt) {
-      tt.ok(fs.existsSync(path.join(outputPath, 'appcache.manifest')));
+      tt.truthy(fs.existsSync(path.join(outputPath, 'appcache.manifest')));
     });
 
     test.serial('appcache.json', function (tt) {
       var appCache;
-      tt.ok(fs.existsSync(path.join(outputPath, 'appcache.json')));
-      tt.doesNotThrow(function () {
+      tt.truthy(fs.existsSync(path.join(outputPath, 'appcache.json')));
+      tt.notThrows(function () {
         delete require.cache[path.join(outputPath, 'appcache.json')];
         appCache = require(path.join(outputPath, 'appcache.json'));
       });
       tt.is(typeof appCache, 'object');
-      tt.ok(Array.isArray(appCache.cache));
+      tt.truthy(Array.isArray(appCache.cache));
     });
   },
 
@@ -55,7 +55,7 @@ module.exports = {
             ttt.not(cssUrl.indexOf('//'), 0, cssUrl + ' not protocol-relative');
             ttt.not(cssUrl.indexOf('http://'), 0, cssUrl + ' not remote HTTP');
             ttt.not(cssUrl.indexOf('https://'), 0, cssUrl + ' not remote HTTPS');
-            ttt.ok(fs.existsSync(path.join(outputPath, cssUrl)), cssUrl + ' local exists');
+            ttt.truthy(fs.existsSync(path.join(outputPath, cssUrl)), cssUrl + ' local exists');
           });
         }
       });
@@ -64,7 +64,7 @@ module.exports = {
 
   makeJavaScriptTests: function (outputPath) {
     test.serial('appCacheIndex.js exists', function (tt) {
-      tt.ok(fs.existsSync(path.join(outputPath, 'appCacheIndex.js')));
+      tt.truthy(fs.existsSync(path.join(outputPath, 'appCacheIndex.js')));
     });
 
     // __dirname is a symptom of weird module paths that break in the app
@@ -77,7 +77,7 @@ module.exports = {
     });
 
     test.serial('require.load.js exists', function (tt) {
-      tt.ok(fs.existsSync(path.join(outputPath, 'require.load.js')));
+      tt.truthy(fs.existsSync(path.join(outputPath, 'require.load.js')));
     });
 
     // __dirname is a symptom of weird module paths that break in the app
@@ -93,8 +93,8 @@ module.exports = {
   makeIndexJSONTests: function (outputPath, remoteUrl) {
     test.serial('index.json', function (tt) {
       var index;
-      tt.ok(fs.existsSync(path.join(outputPath, 'index.json')));
-      tt.doesNotThrow(function () {
+      tt.truthy(fs.existsSync(path.join(outputPath, 'index.json')));
+      tt.notThrows(function () {
         delete require.cache[path.join(outputPath, 'index.json')];
         index = require(path.join(outputPath, 'index.json'));
       });
@@ -108,7 +108,7 @@ module.exports = {
       var el$ = $(this);
       var href = el$.attr('href');
       if (href) {
-        tt.ok(el$.attr('data-appcache-href'));
+        tt.truthy(el$.attr('data-appcache-href'));
         tt.not(href.indexOf('//'), 0);
         tt.not(href.indexOf('http://'));
         tt.not(href.indexOf('https://'));
@@ -121,7 +121,7 @@ module.exports = {
       var el$ = $(this);
       var href = el$.attr('src');
       if (href && NEW_JS.indexOf(href) === -1) {
-        tt.ok(el$.attr('data-appcache-src'));
+        tt.truthy(el$.attr('data-appcache-src'));
         tt.not(href.indexOf('//'), 0);
         tt.not(href.indexOf('http://'));
         tt.not(href.indexOf('https://'));
