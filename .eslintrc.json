@@ -1,7 +1,7 @@
 {
   "extends": [
     "eslint:recommended",
-    "semistandard"
+    "standard"
   ],
   "env": {
     "amd": true,
@@ -11,5 +11,10 @@
   },
   "parserOptions": {
     "ecmaVersion": 6
+  },
+  "rules": {
+    "semi": [2, "always"],
+    "no-extra-semi": 2,
+    "semi-spacing": [2, { "before": false, "after": true }]
   }
 }
