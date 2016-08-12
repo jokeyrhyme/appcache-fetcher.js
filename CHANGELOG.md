@@ -1,6 +1,18 @@
 # Change Log
 
 
+## 2.0.1 - 2016-08-12
+
+
+### Fixed
+
+- ACF-12: revert [browserify](http://browserify.org/) back to 11.0.1 (#16, @simonmarklar)
+
+    - fixes "punycode" errors thrown by generated code
+
+    - HelpDesk: 4669-FJLB-2701
+
+
 ## 2.0.0 - 2016-06-16
 
 
