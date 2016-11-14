@@ -1,4 +1,4 @@
-/*eslint-disable no-sync*/ // tests can be synchronous, relax!
+/* eslint-disable no-sync */ // tests can be synchronous, relax!
 
 'use strict';
 
@@ -21,11 +21,10 @@ var common = require(path.join(__dirname, 'helpers', 'common'));
 
 // this module
 
-var remoteUrl = 'http://everytimezone.com/';
+var remoteUrl = 'http://devdocs.io/';
 
-// use a relative output path here to cover this case
-var relativeOutputPath = path.join('..', 'output', 'everytimezone');
-var outputPath = path.resolve(relativeOutputPath);
+// use an absolute output path here (e.g. __dirname) to cover this case
+var outputPath = path.join(__dirname, '..', 'output', 'devdocs');
 
 var fetcher;
 
@@ -37,7 +36,7 @@ test.serial('constructor', function (t) {
   t.notThrows(function () {
     fetcher = new Fetcher({
       remoteUrl: remoteUrl,
-      localPath: relativeOutputPath
+      localPath: outputPath
     });
   });
   t.truthy(fetcher);
@@ -54,15 +53,14 @@ test.serial('index.html', function (t) {
   contents = fs.readFileSync(path.join(outputPath, 'index.html'), { encoding: 'utf8' });
   $ = cheerio.load(contents);
   t.falsy($('html').attr('manifest'), 'no AppCache manifest attribute');
-  common.testHTMLLinkHref($, t);
   // these tests fail because of weird URLs in HTML / AppCache (?yyyymmdd)
-  // common.testHTMLScriptSrc($, t);
+  // common.testHTMLLinkHref($, t);
+  common.testHTMLScriptSrc($, t);
 });
 
 common.makeIndexJSONTests(outputPath, remoteUrl);
 
-// these tests fail because of weird URLs in HTML / AppCache (?yyyymmdd)
-// common.makeCSSTests(outputPath);
+common.makeCSSTests(outputPath);
 
 common.makeAppCacheTests(outputPath);
 

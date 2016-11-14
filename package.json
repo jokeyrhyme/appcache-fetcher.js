@@ -2,6 +2,7 @@
   "name": "@jokeyrhyme/appcache-fetcher",
   "description": "store an AppCache-enabled site on disk for local use",
   "version": "2.0.1",
+  "author": "Ron Waldon <jokeyrhyme@gmail.com> (https://github.com/jokeyrhyme)",
   "bugs": {
     "url": "https://github.com/jokeyrhyme/appcache-fetcher.js/issues"
   },
@@ -9,7 +10,7 @@
     "@jokeyrhyme/appcache": "1.0.0",
     "browserify": "11.0.1",
     "chalk": "^1.1.1",
-    "cheerio": "^0.20.0",
+    "cheerio": "^0.22.0",
     "graceful-fs": "^4.1.2",
     "is-promise": "2.1.0",
     "lodash.uniq": "^4.0.1",
@@ -23,11 +24,14 @@
   },
   "devDependencies": {
     "ava": "^0.16.0",
-    "eslint": "^3.2.2",
-    "eslint-config-standard": "^6.2.0",
-    "eslint-plugin-promise": "^3.0.0",
-    "eslint-plugin-standard": "^2.0.0",
+    "eslint": "^3.10.0",
+    "eslint-config-semistandard": "^7.0.0",
+    "eslint-config-standard": "^6.2.1",
+    "eslint-plugin-node": "^3.0.3",
+    "eslint-plugin-promise": "^3.3.2",
+    "eslint-plugin-standard": "^2.0.1",
     "fixpack": "^2.2.0",
+    "flow-bin": "^0.35.0",
     "hapi": "^15.1.1",
     "inert": "^4.0.0",
     "mockery": "^2.0.0",
@@ -63,10 +67,12 @@
     "url": "git+https://github.com/jokeyrhyme/appcache-fetcher.js.git"
   },
   "scripts": {
+    "ava": "nyc ava",
     "eslint": "eslint --fix --cache .",
     "fixpack": "fixpack",
-    "nyc": "nyc check-coverage -f 90 -l 90 -s 90",
-    "posttest": "npm run nyc && npm run eslint && npm run fixpack",
-    "test": "nyc ava tests/*.js"
+    "flow_check": "flow check",
+    "nyc": "nyc check-coverage",
+    "posttest": "npm run eslint && npm run flow_check && npm run fixpack",
+    "test": "npm run ava && npm run nyc"
   }
 }
