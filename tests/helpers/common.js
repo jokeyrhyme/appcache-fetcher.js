@@ -1,4 +1,4 @@
-/*eslint-disable no-sync*/ // tests can be synchronous, relax!
+/* eslint-disable no-sync */ // tests can be synchronous, relax!
 
 'use strict';
 
@@ -45,10 +45,10 @@ module.exports = {
         var filePath = path.join(outputPath, filename);
 
         var contents = fs.readFileSync(filePath, { encoding: 'utf8' });
-        var matches = contents.match(/url\([''\s]*[^\(\)]+[''\s]*\)/g);
+        var matches = contents.match(/url\([''\s]*[^()]+[''\s]*\)/g);
         if (Array.isArray(matches)) {
           matches.forEach(function (cssUrlStmt) {
-            var cssUrl = cssUrlStmt.replace(/url\([''\s]*([^\(\)]+)[''\s]*\)/, '$1');
+            var cssUrl = cssUrlStmt.replace(/url\([''\s]*([^()]+)[''\s]*\)/, '$1');
             if (cssUrl.indexOf('data:') === 0) {
               return; // don't bother with Data URIs
             }
