@@ -2,6 +2,7 @@
   "name": "@jokeyrhyme/appcache-fetcher",
   "description": "store an AppCache-enabled site on disk for local use",
   "version": "2.0.1",
+  "author": "Ron Waldon <jokeyrhyme@gmail.com> (https://github.com/jokeyrhyme)",
   "bugs": {
     "url": "https://github.com/jokeyrhyme/appcache-fetcher.js/issues"
   },
@@ -23,11 +24,13 @@
   },
   "devDependencies": {
     "ava": "^0.16.0",
-    "eslint": "^3.2.2",
-    "eslint-config-standard": "^6.2.0",
-    "eslint-plugin-promise": "^3.0.0",
-    "eslint-plugin-standard": "^2.0.0",
+    "eslint": "^3.10.0",
+    "eslint-config-standard": "^6.2.1",
+    "eslint-plugin-node": "^3.0.3",
+    "eslint-plugin-promise": "^3.3.2",
+    "eslint-plugin-standard": "^2.0.1",
     "fixpack": "^2.2.0",
+    "flow-bin": "^0.35.0",
     "hapi": "^15.1.1",
     "inert": "^4.0.0",
     "mockery": "^2.0.0",
@@ -63,9 +66,11 @@
     "url": "git+https://github.com/jokeyrhyme/appcache-fetcher.js.git"
   },
   "scripts": {
+    "ava": "nyc ava",
     "eslint": "eslint --fix --cache .",
     "fixpack": "fixpack",
-    "nyc": "nyc check-coverage -f 90 -l 90 -s 90",
+    "flow_check": "flow check",
+    "nyc": "nyc check-coverage",
     "posttest": "npm run nyc && npm run eslint && npm run fixpack",
     "test": "nyc ava tests/*.js"
   }
