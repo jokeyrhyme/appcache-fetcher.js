@@ -1,6 +1,14 @@
 # Change Log
 
 
+## Unreleased
+
+
+### Changed
+
+-   update to [cheerio 0.22.0](https://github.com/cheeriojs/cheerio/tree/0.22.0)
+
+
 ## 2.0.1 - 2016-08-12
 
 
