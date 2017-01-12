@@ -17,7 +17,6 @@
     "mkdirp": "0.5.1",
     "pify": "2.3.0",
     "request": "2.79.0",
-    "temp": "0.8.3",
     "through2": "2.0.3",
     "vinyl": "2.0.1",
     "vinyl-fs": "2.4.4"
@@ -36,7 +35,8 @@
     "inert": "^4.0.3",
     "mockery": "^2.0.0",
     "nyc": "^10.0.0",
-    "rimraf": "^2.3"
+    "rimraf": "^2.3",
+    "temp": "^0.8.3"
   },
   "directories": {
     "test": "tests"

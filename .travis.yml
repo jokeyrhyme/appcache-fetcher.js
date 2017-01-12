@@ -21,7 +21,4 @@ cache:
     - node_modules
 install:
   - npm install --global npm
-  - npm install --global flow-typed
-  - npm install --global typings
-  - npm install --global yarn
   - npm install

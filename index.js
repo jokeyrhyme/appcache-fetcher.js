@@ -16,7 +16,6 @@ var chalk = require('chalk');
 var mkdirp = require('mkdirp');
 var pify = require('pify');
 var request = require('request');
-var temp = require('temp').track();
 var vfs = require('vinyl-fs');
 
 // our modules
@@ -50,7 +49,6 @@ function Fetcher (opts) {
   this.date = new Date();
   this.remoteUrl = opts.remoteUrl;
   this.localPath = path.resolve(opts.localPath);
-  this.tempPath = '';
   this.index = new FetcherIndex({ remoteUrl: this.remoteUrl });
   this.manifestUrl = '';
   this.strictMode = typeof opts.strictMode === 'boolean' ? opts.strictMode : true;
@@ -88,19 +86,6 @@ Fetcher.prototype.addTransform = function (ext, fn) {
     this.transforms[ext] = [];
   }
   this.transforms[ext].push(fn);
-};
-
-Fetcher.prototype.afterTempPath = function () {
-  return new Promise((resolve, reject) => {
-    temp.mkdir('appcache-fetcher-' + this.date.valueOf(), (err, dirPath) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      this.tempPath = dirPath;
-      resolve(dirPath);
-    });
-  });
 };
 
 Fetcher.prototype.afterLocalPath = function () {
@@ -304,10 +289,7 @@ Fetcher.prototype.postProcessDownloads = function () {
 };
 
 Fetcher.prototype.go = function () {
-  return Promise.all([
-    this.afterTempPath(),
-    this.afterLocalPath()
-  ])
+  return this.afterLocalPath()
     .then(() => this.download(this.remoteUrl, this.localPath))
     .then(() => this.getManifestURL())
     .then((manifestUrl) => {
