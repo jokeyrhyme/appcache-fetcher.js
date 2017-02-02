@@ -22,7 +22,7 @@ var parsed;
 test.serial.cb('load fixture: data-uri.appcache', function (t) {
   var filePath = path.join(__dirname, 'fixtures', 'data-uri.appcache');
   fs.readFile(filePath, { encoding: 'utf8' }, function (err, contents) {
-    t.error(err);
+    t.ifError(err);
     fixture = contents;
     t.truthy(fixture);
     t.is(typeof fixture, 'string');
