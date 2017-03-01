@@ -39,7 +39,7 @@
     "temp": "^0.8.3"
   },
   "directories": {
-    "test": "tests"
+    "test": "test"
   },
   "engines": {
     "node": ">=4",
