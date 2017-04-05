@@ -43,7 +43,7 @@ test.serial('constructor', function (t) {
 });
 
 test.serial('.go()', function (t) {
-  return fetcher.go();
+  return fetcher.go().then(() => t.pass());
 });
 
 test.serial('index.html', function (t) {

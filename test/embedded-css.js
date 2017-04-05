@@ -52,7 +52,7 @@ test.beforeEach((t) => {
 });
 
 test.serial('fetcher.go()', function (t) {
-  return t.context.fetcher.go();
+  return t.context.fetcher.go().then(() => t.pass());
 });
 
 var index;
