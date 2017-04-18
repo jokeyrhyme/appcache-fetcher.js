@@ -18,7 +18,7 @@
     "pify": "2.3.0",
     "request": "2.81.0",
     "through2": "2.0.3",
-    "vinyl": "2.0.1",
+    "vinyl": "2.0.2",
     "vinyl-fs": "2.4.4"
   },
   "devDependencies": {
