@@ -32,7 +32,7 @@
     "eslint-plugin-standard": "^3.0.0",
     "fixpack": "^2.3.1",
     "flow-bin": "^0.70.0",
-    "hapi": "^16.0.1",
+    "hapi": "^17.5.3",
     "inert": "^4.0.3",
     "mockery": "^2.0.0",
     "nyc": "^11.0.2",
