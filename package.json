@@ -17,7 +17,7 @@
     "mkdirp": "0.5.1",
     "pify": "3.0.0",
     "request": "2.81.0",
-    "through2": "2.0.3",
+    "through2": "3.0.0",
     "vinyl": "2.1.0",
     "vinyl-fs": "3.0.0"
   },
