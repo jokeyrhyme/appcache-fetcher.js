@@ -9,7 +9,7 @@
   "dependencies": {
     "@jokeyrhyme/appcache": "1.0.0",
     "browserify": "11.0.1",
-    "chalk": "^2.0.0",
+    "chalk": "^2.4.2",
     "cheerio": "^0.22.0",
     "graceful-fs": "^4.1.2",
     "is-promise": "2.1.0",
